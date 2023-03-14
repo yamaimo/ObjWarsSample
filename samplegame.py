@@ -55,6 +55,9 @@ class Card:
     def __repr__(self) -> str:
         return f"Card({self.__value})"
 
+    def __hash__(self) -> int:
+        return hash(self.__value)
+
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Card) and (self.__value == other.value)
 
@@ -65,6 +68,10 @@ class Card:
 # %%
 class Hand:
     def __init__(self, cards: list[Card]):
+        # 手札のチェック
+        assert len(cards) == 4, f"The number of cards is invalid. (cards: {cards})"
+        assert len(set(cards)) == 4, f"There are the same cards. (cards: {cards})"
+
         self.__cards = sorted(cards)
 
     @property
@@ -81,11 +88,28 @@ print(hand.cards)
 print(hand.has_card(Card(1)))
 print(hand.has_card(Card(5)))
 
+# %%
+try:
+    Hand([Card(1), Card(2)])
+except AssertionError as e:
+    print(e)
+
+try:
+    Hand([Card(1), Card(2), Card(3), Card(1)])
+except AssertionError as e:
+    print(e)
+
 
 # %%
 class Deal:
     def __init__(self, player1_hand: Hand, player2_hand: Hand, rest_card: Card):
-        # FIXME: カードのチェックした方がいい
+        # 使われてるカードのチェック
+        used_card_set = set(player1_hand.cards + player2_hand.cards + [rest_card])
+        all_card_set = set(Card.all_cards())
+        assert (
+            used_card_set == all_card_set
+        ), f"Card set is invalid. (used cards: {used_card_set})"
+
         self.__player1_hand = player1_hand
         self.__player2_hand = player2_hand
         self.__rest_card = rest_card
@@ -101,6 +125,16 @@ class Deal:
     @property
     def rest_card(self) -> Card:
         return self.__rest_card
+
+
+# %%
+try:
+    player1_hand = Hand([Card(i) for i in range(1, 5)])
+    player2_hand = Hand([Card(i) for i in range(4, 8)])
+    rest_card = Card(9)
+    Deal(player1_hand, player2_hand, rest_card)
+except AssertionError as e:
+    print(e)
 
 
 # %%
