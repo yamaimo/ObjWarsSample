@@ -26,12 +26,11 @@
 # 6. 同じ質問を繰り返すことはできない
 
 # %%
-from enum import Enum
 import random
-from typing import Optional, Union, Any
-from abc import ABC, abstractmethod
 import sys
-from io import StringIO
+
+# %%
+from typing import Any, Optional, Protocol, Union, cast
 
 
 # %%
@@ -40,12 +39,13 @@ class Card:
     MAX_VALUE = 9
 
     @classmethod
-    @property
     def all_cards(cls) -> list["Card"]:
-        return [cls(value) for value in range(cls.MIN_VALUE, cls.MAX_VALUE+1)]
+        return [cls(value) for value in range(cls.MIN_VALUE, cls.MAX_VALUE + 1)]
 
     def __init__(self, value: int):
-        assert self.MIN_VALUE <= value <= self.MAX_VALUE, f"Invalid value. (value: {value})"
+        assert (
+            self.MIN_VALUE <= value <= self.MAX_VALUE
+        ), f"Invalid value. (value: {value})"
         self.__value = value
 
     @property
@@ -54,6 +54,9 @@ class Card:
 
     def __repr__(self) -> str:
         return f"Card({self.__value})"
+
+    def __hash__(self) -> int:
+        return hash(self.__value)
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Card) and (self.__value == other.value)
@@ -65,13 +68,17 @@ class Card:
 # %%
 class Hand:
     def __init__(self, cards: list[Card]):
+        # 手札のチェック
+        assert len(cards) == 4, f"The number of cards is invalid. (cards: {cards})"
+        assert len(set(cards)) == 4, f"There are the same cards. (cards: {cards})"
+
         self.__cards = sorted(cards)
 
     @property
     def cards(self) -> list[Card]:
         return list(self.__cards)
 
-    def has_card(self, card: Card):
+    def has_card(self, card: Card) -> bool:
         return card in self.__cards
 
 
@@ -81,10 +88,28 @@ print(hand.cards)
 print(hand.has_card(Card(1)))
 print(hand.has_card(Card(5)))
 
+# %%
+try:
+    Hand([Card(1), Card(2)])
+except AssertionError as e:
+    print(e)
+
+try:
+    Hand([Card(1), Card(2), Card(3), Card(1)])
+except AssertionError as e:
+    print(e)
+
 
 # %%
 class Deal:
     def __init__(self, player1_hand: Hand, player2_hand: Hand, rest_card: Card):
+        # 使われてるカードのチェック
+        used_card_set = set(player1_hand.cards + player2_hand.cards + [rest_card])
+        all_card_set = set(Card.all_cards())
+        assert (
+            used_card_set == all_card_set
+        ), f"Card set is invalid. (used cards: {used_card_set})"
+
         self.__player1_hand = player1_hand
         self.__player2_hand = player2_hand
         self.__rest_card = rest_card
@@ -103,13 +128,23 @@ class Deal:
 
 
 # %%
+try:
+    player1_hand = Hand([Card(i) for i in range(1, 5)])
+    player2_hand = Hand([Card(i) for i in range(4, 8)])
+    rest_card = Card(9)
+    Deal(player1_hand, player2_hand, rest_card)
+except AssertionError as e:
+    print(e)
+
+
+# %%
 class Dealer:
     def __init__(self, random_state: Optional[int] = None):
         self.__random_state = random_state
 
     def deal(self) -> Deal:
         random.seed(self.__random_state)
-        all_cards = Card.all_cards
+        all_cards = Card.all_cards()
         shuffled_cards = random.sample(all_cards, len(all_cards))
         player1_hand = Hand(shuffled_cards[:4])
         player2_hand = Hand(shuffled_cards[4:8])
@@ -183,42 +218,66 @@ print(guess.is_hit(deal.rest_card))
 
 
 # %%
-# FIXME: クラスにした方が扱いやすい
-def get_available_actions(hand: Hand, prev_action: Optional[AskAction]) -> list[Action]:
-    if prev_action is None:
-        return [AskAction(card) for card in Card.all_cards]
+class ActionList:
+    def __init__(self, ask_actions: list[AskAction], guess_actions: list[GuessAction]):
+        self.__ask_actions = ask_actions
+        self.__guess_actions = guess_actions
 
-    available_actions = []
-    for card in Card.all_cards:
-        if card != prev_action.card:
-            available_actions.append(AskAction(card))
-    for card in Card.all_cards:
-        if not hand.has_card(card):
-            available_actions.append(GuessAction(card))
-    return available_actions
+    @property
+    def all_actions(self) -> list[Action]:
+        return self.__ask_actions + self.__guess_actions  # type: ignore
+
+    @property
+    def ask_actions(self) -> list[AskAction]:
+        return list(self.__ask_actions)
+
+    @property
+    def guess_actions(self) -> list[GuessAction]:
+        return list(self.__guess_actions)
+
+    def __contains__(self, action: Action) -> bool:
+        return action in self.all_actions
+
+    def __repr__(self) -> str:
+        return self.all_actions.__repr__()
+
+    @classmethod
+    def get_available_actions(
+        cls, hand: Hand, prev_action: Optional[AskAction]
+    ) -> "ActionList":
+        ask_actions = [AskAction(card) for card in Card.all_cards()]
+        guess_actions = []
+
+        if prev_action is not None:
+            ask_actions.remove(prev_action)
+            for card in Card.all_cards():
+                if not hand.has_card(card):
+                    guess_actions.append(GuessAction(card))
+
+        return ActionList(ask_actions, guess_actions)
 
 
 # %%
 deal = Dealer(0).deal()
 
-print(get_available_actions(deal.player1_hand, None))
-print(get_available_actions(deal.player2_hand, AskAction(Card(1))))
-print(get_available_actions(deal.player1_hand, AskAction(Card(2))))
+print(ActionList.get_available_actions(deal.player1_hand, None))
+print(ActionList.get_available_actions(deal.player2_hand, AskAction(Card(1))))
+print(ActionList.get_available_actions(deal.player1_hand, AskAction(Card(2))))
 
 
 # %%
 class ExitException(Exception):
     pass
 
-class Player(ABC):
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        pass
 
-    @abstractmethod
-    def select_action(self, available_actions: list[Action]) -> Action:
-        pass
+# %%
+class Player(Protocol):
+    @property
+    def name(self) -> str:
+        ...
+
+    def select_action(self, available_actions: ActionList) -> Action:
+        ...
 
 
 # %%
@@ -231,7 +290,7 @@ class HumanPlayer(Player):
     def name(self) -> str:
         return self.__name
 
-    def select_action(self, available_actions: list[Action]) -> Action:
+    def select_action(self, available_actions: ActionList) -> Action:
         self.__print_help(None, available_actions)
         while True:
             args = input(f"{self.__name}> ").strip().split()
@@ -247,7 +306,9 @@ class HumanPlayer(Player):
             elif command == "exit":
                 raise ExitException()
             else:
-                self.__print_help(f"Unknown Command. (command: {command})", available_actions)
+                self.__print_help(
+                    f"Unknown Command. (command: {command})", available_actions
+                )
                 continue
 
             if action is None:
@@ -259,13 +320,15 @@ class HumanPlayer(Player):
             else:
                 return action
 
-    def __print_help(self, message: Optional[str], available_actions: list[Action]) -> None:
-        ask_cards = [action.card for action in available_actions if isinstance(action, AskAction)]
-        guess_cards = [action.card for action in available_actions if isinstance(action, GuessAction)]
+    def __print_help(
+        self, message: Optional[str], available_actions: ActionList
+    ) -> None:
         if message:
             print(message, file=sys.stderr)
         print(f"Your hand: {self.__format_cards(self.__hand.cards)}")
         print("Available commands:")
+        ask_cards = [ask.card for ask in available_actions.ask_actions]
+        guess_cards = [guess.card for guess in available_actions.guess_actions]
         if ask_cards:
             print(f"  ask <card>      (<card>: {self.__format_cards(ask_cards)})")
         if guess_cards:
@@ -299,26 +362,30 @@ class TestInput:
     def __init__(self, inputs: list[str]):
         self.__inputs = inputs
 
-    def __call__(self, *args: Any) -> str:
-        return self.__inputs.pop(0)
+    def __call__(self, prompt: str = "") -> str:
+        ret = self.__inputs.pop(0)
+        print(f"{prompt}{ret}")
+        return ret
 
 
 # %%
 deal = Dealer(0).deal()
 human = HumanPlayer("human", deal.player1_hand)
 
-org_input = input
-input = TestInput(["ask 1", "guess 2"])
+org_input = input  # type: ignore
+input = TestInput(["ask 1", "guess 2"])  # type: ignore
 
-available_actions = get_available_actions(deal.player1_hand, None)
+available_actions = ActionList.get_available_actions(deal.player1_hand, None)
 action = human.select_action(available_actions)
 print(action)
 
-available_actions = get_available_actions(deal.player1_hand, action)
+available_actions = ActionList.get_available_actions(
+    deal.player1_hand, cast(AskAction, action)
+)
 action = human.select_action(available_actions)
 print(action)
 
-input = org_input
+input = org_input  # type: ignore
 
 
 # %%
@@ -331,32 +398,32 @@ class RandomAI(Player):
     def name(self) -> str:
         return self.__name
 
-    def select_action(self, available_actions: list[Action]) -> Action:
-        return random.choice(available_actions)
+    def select_action(self, available_actions: ActionList) -> Action:
+        return random.choice(available_actions.all_actions)
 
 
 # %%
 deal = Dealer(0).deal()
 rand_ai = RandomAI("random", 0)
 
-available_actions = get_available_actions(deal.player1_hand, None)
+available_actions = ActionList.get_available_actions(deal.player1_hand, None)
 action = rand_ai.select_action(available_actions)
 print(action)
 
-available_actions = get_available_actions(deal.player1_hand, action)
+available_actions = ActionList.get_available_actions(
+    deal.player1_hand, cast(AskAction, action)
+)
 action = rand_ai.select_action(available_actions)
 print(action)
 
 
 # %%
-class GameObserver(ABC):
-    @abstractmethod
+class GameObserver(Protocol):
     def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
-        pass
+        ...
 
-    @abstractmethod
     def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
-        pass
+        ...
 
 
 # %%
@@ -376,16 +443,16 @@ class Game:
     def start(self) -> None:
         turn_player = self.__player1
         opponent_player = self.__player2
-        turn_player_hand = self.__deal.player1_hand
-        opponent_player_hand = self.__deal.player2_hand
+        turn_hand = self.__deal.player1_hand
+        opponent_hand = self.__deal.player2_hand
 
-        prev_action = None
+        prev_action: Optional[AskAction] = None
         while True:
-            available_actions = get_available_actions(turn_player_hand, prev_action)
+            available_actions = ActionList.get_available_actions(turn_hand, prev_action)
             action = turn_player.select_action(available_actions)
 
             if isinstance(action, AskAction):
-                is_hit = action.is_hit(opponent_player_hand)
+                is_hit = action.is_hit(opponent_hand)
                 for observer in self.__observers:
                     observer.player_asked(turn_player, action, is_hit)
             else:
@@ -396,7 +463,7 @@ class Game:
 
             prev_action = action
             turn_player, opponent_player = opponent_player, turn_player
-            turn_player_hand, opponent_player_hand = opponent_player_hand, turn_player_hand
+            turn_hand, opponent_hand = opponent_hand, turn_hand
 
 
 # %%
@@ -414,32 +481,34 @@ class GameViewer(GameObserver):
 
 # %%
 deal = Dealer(0).deal()
-player1 = HumanPlayer("player1", deal.player1_hand)
-player2 = HumanPlayer("player2", deal.player2_hand)
+human_player1 = HumanPlayer("player1", deal.player1_hand)
+human_player2 = HumanPlayer("player2", deal.player2_hand)
 
-org_input = input
-input = TestInput(["ask 2", "ask 3", "guess 4"])
+org_input = input  # type: ignore
+input = TestInput(["ask 2", "ask 3", "guess 4"])  # type: ignore
 
-game = Game(deal, player1, player2)
+game = Game(deal, human_player1, human_player2)
 game.add_observer(GameViewer())
 game.start()
 
-input = org_input
+input = org_input  # type: ignore
 
 
 # %%
 class SmartAI(Player, GameObserver):
-    def __init__(self, name, hand: Hand, random_state: Optional[int] = None):
+    def __init__(self, name: str, hand: Hand, random_state: Optional[int] = None):
         self.__name = name
         self.__hand = hand
         self.__random_state = random_state
-        self.__rest_cards: list[Card] = []   # 残ってるカード
+        self.__rest_cards: list[Card] = []  # 残ってるカード
         self.__bluff_cards: list[Card] = []  # ブラフに使えるカード
         self.__maybe_card: Optional[Card] = None  # 推測したカード
         self.__init_state()
 
     def __init_state(self) -> None:
-        self.__rest_cards = [card for card in Card.all_cards if not self.__hand.has_card(card)]
+        self.__rest_cards = [
+            card for card in Card.all_cards() if not self.__hand.has_card(card)
+        ]
         self.__bluff_cards = list(self.__hand.cards)
         self.__maybe_card = None
         random.seed(self.__random_state)
@@ -448,40 +517,45 @@ class SmartAI(Player, GameObserver):
     def name(self) -> str:
         return self.__name
 
-    def select_action(self, available_actions: list[Action]) -> Action:
+    def select_action(self, available_actions: ActionList) -> Action:
         # 推測したカードがあるなら推測する
         if self.__maybe_card is not None:
             guess = GuessAction(self.__maybe_card)
-            assert guess in available_actions, \
-                f"Invalid action. (action: {guess}, available: {available_actions})"
+            assert (
+                guess in available_actions
+            ), f"Invalid action. (action: {guess}, available: {available_actions})"
             return guess
 
         # そうでない場合、推測可能なら確率で推測する
-        available_guess_actions = [action for action in available_actions if isinstance(action, GuessAction)]
+        available_guess_actions = available_actions.guess_actions
         if available_guess_actions:
             guess_th = 1 / len(self.__rest_cards)
             if random.random() <= guess_th:
                 selected = random.choice(self.__rest_cards)
                 guess = GuessAction(selected)
-                assert guess in available_actions, \
-                    f"Invalid action. (action: {guess}, available: {available_actions})"
+                assert (
+                    guess in available_actions
+                ), f"Invalid action. (action: {guess}, available: {available_actions})"
                 return guess
 
         # そうでない場合、可能なら確率でブラフする
         if self.__bluff_cards:
-            bluff_th = (5 - len(self.__bluff_cards)) / 20  # 4枚: 5%, 3枚: 10%, 2枚: 15%, 1枚: 20%
+            # 4枚: 5%, 3枚: 10%, 2枚: 15%, 1枚: 20%
+            bluff_th = (5 - len(self.__bluff_cards)) / 20
             if random.random() <= bluff_th:
                 selected = random.choice(self.__bluff_cards)
                 ask = AskAction(selected)
-                assert ask in available_actions, \
-                    f"Invalid action. (action: {ask}, available: {available_actions})"
+                assert (
+                    ask in available_actions
+                ), f"Invalid action. (action: {ask}, available: {available_actions})"
                 return ask
 
         # そうでない場合、質問する
         selected = random.choice(self.__rest_cards)
         ask = AskAction(selected)
-        assert ask in available_actions, \
-            f"Invalid action. (action: {ask}, available: {available_actions})"
+        assert (
+            ask in available_actions
+        ), f"Invalid action. (action: {ask}, available: {available_actions})"
         return ask
 
     def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
@@ -511,13 +585,13 @@ class SmartAI(Player, GameObserver):
 
 # %%
 deal = Dealer().deal()
-player1 = SmartAI("player1", deal.player1_hand)
-player2 = SmartAI("player2", deal.player2_hand)
+ai_player1 = SmartAI("player1", deal.player1_hand)
+ai_player2 = SmartAI("player2", deal.player2_hand)
 
-game = Game(deal, player1, player2)
+game = Game(deal, ai_player1, ai_player2)
 game.add_observer(GameViewer())
-game.add_observer(player1)
-game.add_observer(player2)
+game.add_observer(ai_player1)
+game.add_observer(ai_player2)
 game.start()
 
 # %%
