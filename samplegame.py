@@ -30,8 +30,7 @@ import random
 import sys
 
 # %%
-from abc import ABC, abstractmethod
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Protocol, Union, cast
 
 
 # %%
@@ -238,15 +237,13 @@ class ExitException(Exception):
 
 
 # %%
-class Player(ABC):
+class Player(Protocol):
     @property
-    @abstractmethod
     def name(self) -> str:
-        pass
+        ...
 
-    @abstractmethod
     def select_action(self, available_actions: ActionList) -> Action:
-        pass
+        ...
 
 
 # %%
@@ -387,14 +384,12 @@ print(action)
 
 
 # %%
-class GameObserver(ABC):
-    @abstractmethod
+class GameObserver(Protocol):
     def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
-        pass
+        ...
 
-    @abstractmethod
     def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
-        pass
+        ...
 
 
 # %%
