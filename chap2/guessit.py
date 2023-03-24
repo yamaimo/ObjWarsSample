@@ -29,16 +29,15 @@ def get_available_actions(
     - 入力2: 直前の行動（辞書／なし）
     - 出力: 可能な行動一覧（辞書のリスト）
     """
-    ask_actions = [{"kind": "ask", "card": card} for card in range(1, 10)]
-    guess_actions = []
+    actions = [{"kind": "ask", "card": card} for card in range(1, 10)]
 
     if prev_action is not None:
-        ask_actions.remove(prev_action)
+        actions.remove(prev_action)
         for card in range(1, 10):
             if card not in hand:
-                guess_actions.append({"kind": "guess", "card": card})
+                actions.append({"kind": "guess", "card": card})
 
-    return ask_actions + guess_actions
+    return actions
 
 
 def select_action_human(hand: list[int], prev_action: Optional[Action]) -> Action:
