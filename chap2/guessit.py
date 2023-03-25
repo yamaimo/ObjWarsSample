@@ -29,16 +29,15 @@ def get_available_actions(
     - 入力2: 直前の行動（辞書／なし）
     - 出力: 可能な行動一覧（辞書のリスト）
     """
-    ask_actions = [{"kind": "ask", "card": card} for card in range(1, 10)]
-    guess_actions = []
+    actions = [{"kind": "ask", "card": card} for card in range(1, 10)]
 
     if prev_action is not None:
-        ask_actions.remove(prev_action)
+        actions.remove(prev_action)
         for card in range(1, 10):
             if card not in hand:
-                guess_actions.append({"kind": "guess", "card": card})
+                actions.append({"kind": "guess", "card": card})
 
-    return ask_actions + guess_actions
+    return actions
 
 
 def select_action_human(hand: list[int], prev_action: Optional[Action]) -> Action:
@@ -69,6 +68,7 @@ def select_action_human(hand: list[int], prev_action: Optional[Action]) -> Actio
         args = input("player> ").strip().split()
         if len(args) < 1:
             print("Empty Command.")
+            print()  # 一行空ける
             continue
 
         command = args[0].lower()
@@ -78,28 +78,34 @@ def select_action_human(hand: list[int], prev_action: Optional[Action]) -> Actio
                 card = int(args[1])
             except ValueError as e:
                 print(e)
+                print()  # 一行空ける
                 continue
 
         if command == "ask":
             if card is None:
                 print("Card is not specified.")
+                print()  # 一行空ける
                 continue
             action = {"kind": "ask", "card": card}
         elif command == "guess":
             if card is None:
                 print("Card is not specified.")
+                print()  # 一行空ける
                 continue
             action = {"kind": "guess", "card": card}
         elif command == "exit":
             raise Exception("Exit game.")
         else:
             print(f"Unknown Command. (command: {command})")
+            print()  # 一行空ける
             continue
 
         if action not in available_actions:
             print(f"Unavailable. (action: {action})")
+            print()  # 一行空ける
             continue
         else:
+            print(f"You select {action}")
             return action
 
 
@@ -111,7 +117,9 @@ def select_action_ai(hand: list[int], prev_action: Optional[Action]) -> Action:
     - 出力: 選択した行動（辞書）
     """
     available_actions = get_available_actions(hand, prev_action)
-    return random.choice(available_actions)
+    action = random.choice(available_actions)
+    print(f"AI select {action}")
+    return action
 
 
 def check_action(
@@ -127,7 +135,6 @@ def check_action(
     """
     win_player = None
 
-    print(f"player{player}: {action}")
     if action["kind"] == "ask":
         if action["card"] in opponent_hand:
             print("Hit.")
@@ -141,6 +148,7 @@ def check_action(
             print("Miss.")
             opponent_player = (player + 1) % 2  # 0->1, 1->0
             win_player = opponent_player
+    print()  # 一行空ける
 
     return win_player
 
