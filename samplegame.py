@@ -40,7 +40,10 @@ class Card:
 
     @classmethod
     def all_cards(cls) -> list["Card"]:
-        return [cls(value) for value in range(cls.MIN_VALUE, cls.MAX_VALUE + 1)]
+        return [
+            cls(value)
+            for value in range(cls.MIN_VALUE, cls.MAX_VALUE + 1)
+        ]
 
     def __init__(self, value: int):
         assert (
@@ -59,7 +62,9 @@ class Card:
         return hash(self.__value)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Card) and (self.__value == other.value)
+        return isinstance(other, Card) and (
+            self.__value == other.value
+        )
 
     def __lt__(self, other: "Card") -> bool:
         return self.value < other.value
@@ -69,8 +74,12 @@ class Card:
 class Hand:
     def __init__(self, cards: list[Card]):
         # 手札のチェック
-        assert len(cards) == 4, f"The number of cards is invalid. (cards: {cards})"
-        assert len(set(cards)) == 4, f"There are the same cards. (cards: {cards})"
+        assert (
+            len(cards) == 4
+        ), f"The number of cards is invalid. (cards: {cards})"
+        assert (
+            len(set(cards)) == 4
+        ), f"There are the same cards. (cards: {cards})"
 
         self.__cards = sorted(cards)
 
@@ -102,9 +111,18 @@ except AssertionError as e:
 
 # %%
 class Deal:
-    def __init__(self, player1_hand: Hand, player2_hand: Hand, rest_card: Card):
+    def __init__(
+        self,
+        player1_hand: Hand,
+        player2_hand: Hand,
+        rest_card: Card,
+    ):
         # 使われてるカードのチェック
-        used_card_set = set(player1_hand.cards + player2_hand.cards + [rest_card])
+        used_card_set = set(
+            player1_hand.cards
+            + player2_hand.cards
+            + [rest_card]
+        )
         all_card_set = set(Card.all_cards())
         assert (
             used_card_set == all_card_set
@@ -145,7 +163,9 @@ class Dealer:
     def deal(self) -> Deal:
         random.seed(self.__random_state)
         all_cards = Card.all_cards()
-        shuffled_cards = random.sample(all_cards, len(all_cards))
+        shuffled_cards = random.sample(
+            all_cards, len(all_cards)
+        )
         player1_hand = Hand(shuffled_cards[:4])
         player2_hand = Hand(shuffled_cards[4:8])
         rest_card = shuffled_cards[-1]
@@ -180,7 +200,9 @@ class AskAction:
         return f"Ask({self.__card})"
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, AskAction) and (self.__card == other.card)
+        return isinstance(other, AskAction) and (
+            self.__card == other.card
+        )
 
 
 # %%
@@ -199,7 +221,9 @@ class GuessAction:
         return f"Guess({self.__card})"
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, GuessAction) and (self.__card == other.card)
+        return isinstance(other, GuessAction) and (
+            self.__card == other.card
+        )
 
 
 # %%
@@ -219,7 +243,11 @@ print(guess.is_hit(deal.rest_card))
 
 # %%
 class ActionList:
-    def __init__(self, ask_actions: list[AskAction], guess_actions: list[GuessAction]):
+    def __init__(
+        self,
+        ask_actions: list[AskAction],
+        guess_actions: list[GuessAction],
+    ):
         self.__ask_actions = ask_actions
         self.__guess_actions = guess_actions
 
@@ -245,7 +273,9 @@ class ActionList:
     def get_available_actions(
         cls, hand: Hand, prev_action: Optional[AskAction]
     ) -> "ActionList":
-        ask_actions = [AskAction(card) for card in Card.all_cards()]
+        ask_actions = [
+            AskAction(card) for card in Card.all_cards()
+        ]
         guess_actions = []
 
         if prev_action is not None:
@@ -261,8 +291,16 @@ class ActionList:
 deal = Dealer(0).deal()
 
 print(ActionList.get_available_actions(deal.player1_hand, None))
-print(ActionList.get_available_actions(deal.player2_hand, AskAction(Card(1))))
-print(ActionList.get_available_actions(deal.player1_hand, AskAction(Card(2))))
+print(
+    ActionList.get_available_actions(
+        deal.player2_hand, AskAction(Card(1))
+    )
+)
+print(
+    ActionList.get_available_actions(
+        deal.player1_hand, AskAction(Card(2))
+    )
+)
 
 
 # %%
@@ -276,7 +314,9 @@ class Player(Protocol):
     def name(self) -> str:
         ...
 
-    def select_action(self, available_actions: ActionList) -> Action:
+    def select_action(
+        self, available_actions: ActionList
+    ) -> Action:
         ...
 
 
@@ -290,12 +330,16 @@ class HumanPlayer(Player):
     def name(self) -> str:
         return self.__name
 
-    def select_action(self, available_actions: ActionList) -> Action:
+    def select_action(
+        self, available_actions: ActionList
+    ) -> Action:
         self.__print_help(None, available_actions)
         while True:
             args = input(f"{self.__name}> ").strip().split()
             if len(args) < 1:
-                self.__print_help("Empty Command.", available_actions)
+                self.__print_help(
+                    "Empty Command.", available_actions
+                )
                 continue
 
             command = args.pop(0).lower()
@@ -307,35 +351,56 @@ class HumanPlayer(Player):
                 raise ExitException()
             else:
                 self.__print_help(
-                    f"Unknown Command. (command: {command})", available_actions
+                    f"Unknown Command. (command: {command})",
+                    available_actions,
                 )
                 continue
 
             if action is None:
-                self.__print_help("Parse Error.", available_actions)
+                self.__print_help(
+                    "Parse Error.", available_actions
+                )
                 continue
             elif action not in available_actions:
-                self.__print_help(f"Unavailable. (action: {action})", available_actions)
+                self.__print_help(
+                    f"Unavailable. (action: {action})",
+                    available_actions,
+                )
                 continue
             else:
                 return action
 
     def __print_help(
-        self, message: Optional[str], available_actions: ActionList
+        self,
+        message: Optional[str],
+        available_actions: ActionList,
     ) -> None:
         if message:
             print(message, file=sys.stderr)
-        print(f"Your hand: {self.__format_cards(self.__hand.cards)}")
+        print(
+            f"Your hand: {self.__format_cards(self.__hand.cards)}"
+        )
         print("Available commands:")
-        ask_cards = [ask.card for ask in available_actions.ask_actions]
-        guess_cards = [guess.card for guess in available_actions.guess_actions]
+        ask_cards = [
+            ask.card for ask in available_actions.ask_actions
+        ]
+        guess_cards = [
+            guess.card
+            for guess in available_actions.guess_actions
+        ]
         if ask_cards:
-            print(f"  ask <card>      (<card>: {self.__format_cards(ask_cards)})")
+            print(
+                f"  ask <card>      (<card>: {self.__format_cards(ask_cards)})"
+            )
         if guess_cards:
-            print(f"  guess <card>    (<card>: {self.__format_cards(guess_cards)})")
+            print(
+                f"  guess <card>    (<card>: {self.__format_cards(guess_cards)})"
+            )
         print("  exit")
 
-    def __parse_ask_command(self, args: list[str]) -> Optional[Action]:
+    def __parse_ask_command(
+        self, args: list[str]
+    ) -> Optional[Action]:
         try:
             card = Card(int(args[0]))
             return AskAction(card)
@@ -343,7 +408,9 @@ class HumanPlayer(Player):
             print(e, file=sys.stderr)
             return None
 
-    def __parse_guess_command(self, args: list[str]) -> Optional[Action]:
+    def __parse_guess_command(
+        self, args: list[str]
+    ) -> Optional[Action]:
         try:
             card = Card(int(args[0]))
             return GuessAction(card)
@@ -375,7 +442,9 @@ human = HumanPlayer("human", deal.player1_hand)
 org_input = input  # type: ignore
 input = TestInput(["ask 1", "guess 2"])  # type: ignore
 
-available_actions = ActionList.get_available_actions(deal.player1_hand, None)
+available_actions = ActionList.get_available_actions(
+    deal.player1_hand, None
+)
 action = human.select_action(available_actions)
 print(action)
 
@@ -390,7 +459,9 @@ input = org_input  # type: ignore
 
 # %%
 class RandomAI(Player):
-    def __init__(self, name: str, random_state: Optional[int] = None):
+    def __init__(
+        self, name: str, random_state: Optional[int] = None
+    ):
         self.__name = name
         random.seed(random_state)
 
@@ -398,7 +469,9 @@ class RandomAI(Player):
     def name(self) -> str:
         return self.__name
 
-    def select_action(self, available_actions: ActionList) -> Action:
+    def select_action(
+        self, available_actions: ActionList
+    ) -> Action:
         return random.choice(available_actions.all_actions)
 
 
@@ -406,7 +479,9 @@ class RandomAI(Player):
 deal = Dealer(0).deal()
 rand_ai = RandomAI("random", 0)
 
-available_actions = ActionList.get_available_actions(deal.player1_hand, None)
+available_actions = ActionList.get_available_actions(
+    deal.player1_hand, None
+)
 action = rand_ai.select_action(available_actions)
 print(action)
 
@@ -419,16 +494,22 @@ print(action)
 
 # %%
 class GameObserver(Protocol):
-    def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
+    def player_asked(
+        self, player: Player, ask: AskAction, is_hit: bool
+    ) -> None:
         ...
 
-    def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
+    def player_guessed(
+        self, player: Player, guess: GuessAction, is_hit: bool
+    ) -> None:
         ...
 
 
 # %%
 class Game:
-    def __init__(self, deal: Deal, player1: Player, player2: Player):
+    def __init__(
+        self, deal: Deal, player1: Player, player2: Player
+    ):
         self.__deal = deal
         self.__player1 = player1
         self.__player2 = player2
@@ -448,34 +529,55 @@ class Game:
 
         prev_action: Optional[AskAction] = None
         while True:
-            available_actions = ActionList.get_available_actions(turn_hand, prev_action)
-            action = turn_player.select_action(available_actions)
+            available_actions = (
+                ActionList.get_available_actions(
+                    turn_hand, prev_action
+                )
+            )
+            action = turn_player.select_action(
+                available_actions
+            )
 
             if isinstance(action, AskAction):
                 is_hit = action.is_hit(opponent_hand)
                 for observer in self.__observers:
-                    observer.player_asked(turn_player, action, is_hit)
+                    observer.player_asked(
+                        turn_player, action, is_hit
+                    )
             else:
                 is_hit = action.is_hit(self.__deal.rest_card)
                 for observer in self.__observers:
-                    observer.player_guessed(turn_player, action, is_hit)
+                    observer.player_guessed(
+                        turn_player, action, is_hit
+                    )
                 return
 
             prev_action = action
-            turn_player, opponent_player = opponent_player, turn_player
+            turn_player, opponent_player = (
+                opponent_player,
+                turn_player,
+            )
             turn_hand, opponent_hand = opponent_hand, turn_hand
 
 
 # %%
 class GameViewer(GameObserver):
-    def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
+    def player_asked(
+        self, player: Player, ask: AskAction, is_hit: bool
+    ) -> None:
         result = "Hit." if is_hit else "Miss."
-        print(f"{player.name} asked {ask.card.value} => {result}")
+        print(
+            f"{player.name} asked {ask.card.value} => {result}"
+        )
 
-    def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
+    def player_guessed(
+        self, player: Player, guess: GuessAction, is_hit: bool
+    ) -> None:
         result = "Hit." if is_hit else "Miss."
         game_result = "Won." if is_hit else "Lost."
-        print(f"{player.name} guessed {guess.card.value} => {result}")
+        print(
+            f"{player.name} guessed {guess.card.value} => {result}"
+        )
         print(f"{player.name} {game_result}")
 
 
@@ -496,7 +598,12 @@ input = org_input  # type: ignore
 
 # %%
 class SmartAI(Player, GameObserver):
-    def __init__(self, name: str, hand: Hand, random_state: Optional[int] = None):
+    def __init__(
+        self,
+        name: str,
+        hand: Hand,
+        random_state: Optional[int] = None,
+    ):
         self.__name = name
         self.__hand = hand
         self.__random_state = random_state
@@ -507,7 +614,9 @@ class SmartAI(Player, GameObserver):
 
     def __init_state(self) -> None:
         self.__rest_cards = [
-            card for card in Card.all_cards() if not self.__hand.has_card(card)
+            card
+            for card in Card.all_cards()
+            if not self.__hand.has_card(card)
         ]
         self.__bluff_cards = list(self.__hand.cards)
         self.__maybe_card = None
@@ -517,7 +626,9 @@ class SmartAI(Player, GameObserver):
     def name(self) -> str:
         return self.__name
 
-    def select_action(self, available_actions: ActionList) -> Action:
+    def select_action(
+        self, available_actions: ActionList
+    ) -> Action:
         # 推測したカードがあるなら推測する
         if self.__maybe_card is not None:
             guess = GuessAction(self.__maybe_card)
@@ -527,7 +638,9 @@ class SmartAI(Player, GameObserver):
             return guess
 
         # そうでない場合、推測可能なら確率で推測する
-        available_guess_actions = available_actions.guess_actions
+        available_guess_actions = (
+            available_actions.guess_actions
+        )
         if available_guess_actions:
             guess_th = 1 / len(self.__rest_cards)
             if random.random() <= guess_th:
@@ -558,7 +671,9 @@ class SmartAI(Player, GameObserver):
         ), f"Invalid action. (action: {ask}, available: {available_actions})"
         return ask
 
-    def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
+    def player_asked(
+        self, player: Player, ask: AskAction, is_hit: bool
+    ) -> None:
         if player == self:
             if ask.card in self.__bluff_cards:
                 self.__bluff_cards.remove(ask.card)
@@ -579,7 +694,9 @@ class SmartAI(Player, GameObserver):
                     if ask.card in self.__rest_cards:
                         self.__rest_cards.remove(ask.card)
 
-    def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
+    def player_guessed(
+        self, player: Player, guess: GuessAction, is_hit: bool
+    ) -> None:
         self.__init_state()
 
 
