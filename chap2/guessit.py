@@ -1,10 +1,10 @@
 import random
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 Action = dict[str, Any]
 
 
-def deal() -> Tuple[list[int], list[int], int]:
+def deal() -> tuple[list[int], list[int], int]:
     """
     各プレイヤーに手札を配る
     - 入力: なし
