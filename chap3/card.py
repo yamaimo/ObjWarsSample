@@ -5,30 +5,34 @@ from typing import NewType, Optional
 
 Card = NewType("Card", tuple[int])
 
-CARD_MIN_VALUE = 1
-CARD_MAX_VALUE = 9
+CARD_MIN_NUMBER = 1
+CARD_MAX_NUMBER = 9
 
 
-def Card_init(value: int) -> Card:
+def Card_init(number: int) -> Card:
+    """
+    カードを生成して返す
+    不正な値の場合はAssertionError
+    """
     assert (
-        CARD_MIN_VALUE <= value <= CARD_MAX_VALUE
-    ), f"Invalid value. (value: {value})"
-    data = (value,)
+        CARD_MIN_NUMBER <= number <= CARD_MAX_NUMBER
+    ), f"Invalid number. (number: {number})"
+    data = (number,)
     return Card(data)
 
 
-def Card_get_value(card: Card) -> int:
+def Card_get_number(card: Card) -> int:
+    """カードの数字を返す"""
     return card[0]
 
 
-def Card_to_str(card: Card) -> str:
-    return str(card[0])
-
-
 def Card_get_all_cards() -> list[Card]:
+    """すべてのカードを生成して返す"""
     return [
-        Card_init(value)
-        for value in range(CARD_MIN_VALUE, CARD_MAX_VALUE + 1)
+        Card_init(number)
+        for number in range(
+            CARD_MIN_NUMBER, CARD_MAX_NUMBER + 1
+        )
     ]
 
 
@@ -38,6 +42,10 @@ Hand = NewType("Hand", tuple[list[Card]])
 
 
 def Hand_init(cards: list[Card]) -> Hand:
+    """
+    手札を生成して返す
+    カードのリストが不正な場合はAssertionError
+    """
     # 手札のチェック
     assert (
         len(cards) == 4
@@ -46,16 +54,18 @@ def Hand_init(cards: list[Card]) -> Hand:
         len(set(cards)) == 4
     ), f"There are the same cards. (cards: {cards})"
 
-    sorted_cards = sorted(cards, key=Card_get_value)
+    sorted_cards = sorted(cards, key=Card_get_number)
     data = (sorted_cards,)
     return Hand(data)
 
 
 def Hand_get_cards(hand: Hand) -> list[Card]:
+    """手札のカード一覧を返す"""
     return hand[0]
 
 
 def Hand_has_card(hand: Hand, card: Card) -> bool:
+    """手札に指定されたカードがあるか返す"""
     return card in hand[0]
 
 
@@ -67,6 +77,10 @@ Deal = NewType("Deal", tuple[Hand, Hand, Card])
 def Deal_init(
     player0_hand: Hand, player1_hand: Hand, rest_card: Card
 ) -> Deal:
+    """
+    ディールを生成して返す
+    手札や残ったカードが不正な場合はAssertionError
+    """
     # 使われてるカードのチェック
     used_card_set = set(
         Hand_get_cards(player0_hand)
@@ -83,14 +97,17 @@ def Deal_init(
 
 
 def Deal_get_player0_hand(deal: Deal) -> Hand:
+    """先手の手札を返す"""
     return deal[0]
 
 
 def Deal_get_player1_hand(deal: Deal) -> Hand:
+    """後手の手札を返す"""
     return deal[1]
 
 
 def Deal_get_rest_card(deal: Deal) -> Card:
+    """残ったカードを返す"""
     return deal[2]
 
 
@@ -100,11 +117,16 @@ Dealer = NewType("Dealer", tuple[Optional[int]])
 
 
 def Dealer_init(random_state: Optional[int] = None) -> Dealer:
+    """ディーラーを生成して返す"""
     data = (random_state,)
     return Dealer(data)
 
 
 def Dealer_deal(dealer: Dealer) -> Deal:
+    """
+    ディーラーにランダムにカードを配らせて
+    ディールを生成して返す
+    """
     random.seed(dealer[0])
     all_cards = Card_get_all_cards()
     shuffled_cards = random.sample(all_cards, len(all_cards))
@@ -119,10 +141,7 @@ if __name__ == "__main__":
 
     all_cards = Card_get_all_cards()
     for card in all_cards:
-        print(
-            f"value: {Card_get_value(card)}, str: "
-            + Card_to_str(card)
-        )
+        print(f"number: {Card_get_number(card)}")
 
     card1_1 = Card_init(1)
     card1_2 = Card_init(1)
@@ -132,18 +151,18 @@ if __name__ == "__main__":
     assert card1_2 != card2
 
     try:
-        Card_init(CARD_MIN_VALUE - 1)
+        Card_init(CARD_MIN_NUMBER - 1)
     except Exception as e:
         print(e)
     try:
-        Card_init(CARD_MAX_VALUE + 1)
+        Card_init(CARD_MAX_NUMBER + 1)
     except Exception as e:
         print(e)
 
     # Hand ----------
 
     hand = Hand_init(
-        [Card_init(value) for value in range(1, 5)]
+        [Card_init(number) for number in range(1, 5)]
     )
     print(Hand_get_cards(hand))
     print(Hand_has_card(hand, Card_init(1)))
@@ -154,7 +173,9 @@ if __name__ == "__main__":
     except AssertionError as e:
         print(e)
     try:
-        Hand_init([Card_init(value) for value in [1, 2, 3, 1]])
+        Hand_init(
+            [Card_init(number) for number in [1, 2, 3, 1]]
+        )
     except AssertionError as e:
         print(e)
 
