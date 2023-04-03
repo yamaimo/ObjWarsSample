@@ -15,8 +15,8 @@ from action import (
 )
 from card import (
     Card,
+    Card_get_number,
     Card_init,
-    Card_to_str,
     Hand,
     Hand_get_cards,
 )
@@ -35,46 +35,52 @@ HumanPlayer = NewType("HumanPlayer", tuple[str, Hand, Terminal])
 def HumanPlayer_init(
     name: str, hand: Hand, terminal: Terminal
 ) -> HumanPlayer:
+    """人のプレイヤーを生成して返す"""
     data = (name, hand, terminal)
     return HumanPlayer(data)
 
 
 def HumanPlayer_get_name(player: HumanPlayer) -> str:
+    """人のプレイヤーの名前を返す"""
     return player[0]
 
 
 def HumanPlayer_select_action(
     player: HumanPlayer, available_actions: ActionList
 ) -> Action:
+    """人のプレイヤーに行動を選択させて返す"""
     name = player[0]
 
     hand = player[1]
-    hand_str = ", ".join(map(Card_to_str, Hand_get_cards(hand)))
+    hand_numbers = map(Card_get_number, Hand_get_cards(hand))
+    hand_str = ", ".join(map(str, hand_numbers))
 
     terminal = player[2]
 
     ask_actions = ActionList_get_ask_actions(available_actions)
     ask_cards = map(AskAction_get_card, ask_actions)
-    ask_cards_str = ", ".join(map(Card_to_str, ask_cards))
+    ask_numbers = map(Card_get_number, ask_cards)
+    ask_str = ", ".join(map(str, ask_numbers))
 
     guess_actions = ActionList_get_guess_actions(
         available_actions
     )
     guess_cards = map(GuessAction_get_card, guess_actions)
-    guess_cards_str = ", ".join(map(Card_to_str, guess_cards))
+    guess_numbers = map(Card_get_number, guess_cards)
+    guess_str = ", ".join(map(str, guess_numbers))
 
     while True:
         Terminal_put_str(terminal, f"{name} hand: {hand_str}")
         Terminal_put_str(terminal, "Available commands:")
-        if ask_cards_str:
+        if ask_str:
             Terminal_put_str(
                 terminal,
-                f"  ask <card>      (<card>: {ask_cards_str})",
+                f"  ask <card>      (<card>: {ask_str})",
             )
-        if guess_cards_str:
+        if guess_str:
             Terminal_put_str(
                 terminal,
-                f"  guess <card>    (<card>: {guess_cards_str})",
+                f"  guess <card>    (<card>: {guess_str})",
             )
         Terminal_put_str(terminal, "  exit")
 
@@ -141,18 +147,21 @@ RandomAI = NewType("RandomAI", tuple[str])
 def RandomAI_init(
     name: str, random_state: Optional[int] = None
 ) -> RandomAI:
+    """ランダム選択のAIを生成して返す"""
     random.seed(random_state)
     data = (name,)
     return RandomAI(data)
 
 
 def RandomAI_get_name(player: RandomAI) -> str:
+    """AIの名前を返す"""
     return player[0]
 
 
 def RandomAI_select_action(
     player: RandomAI, available_actions: ActionList
 ) -> Action:
+    """行動をAIにランダムに選択させて返す"""
     return random.choice(
         ActionList_get_all_actions(available_actions)
     )
@@ -171,6 +180,7 @@ Player = NewType(
 def Player_init_with_human_player(
     human_player: HumanPlayer,
 ) -> Player:
+    """人のプレイヤーからプレイヤーを生成して返す"""
     data = (
         human_player,
         HumanPlayer_get_name,
@@ -180,6 +190,7 @@ def Player_init_with_human_player(
 
 
 def Player_init_with_random_ai(random_ai: RandomAI) -> Player:
+    """ランダム選択のAIからプレイヤーを生成して返す"""
     data = (
         random_ai,
         RandomAI_get_name,
@@ -189,6 +200,7 @@ def Player_init_with_random_ai(random_ai: RandomAI) -> Player:
 
 
 def Player_get_name(player: Player) -> str:
+    """プレイヤーの名前を返す"""
     player_impl = player[0]
     name_func = player[1]
     return name_func(player_impl)
@@ -197,6 +209,7 @@ def Player_get_name(player: Player) -> str:
 def Player_select_action(
     player: Player, available_actions: ActionList
 ) -> Action:
+    """プレイヤーに行動を選択させて返す"""
     player_impl = player[0]
     select_action_func = player[2]
     return select_action_func(player_impl, available_actions)
