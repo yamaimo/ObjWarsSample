@@ -11,7 +11,7 @@ from action import (
     GuessAction_is_hit,
 )
 from card import (
-    Card_to_str,
+    Card_get_number,
     Deal,
     Deal_get_player0_hand,
     Deal_get_player1_hand,
@@ -35,11 +35,13 @@ def Game_init(
     player1: Player,
     terminal: Terminal,
 ) -> Game:
+    """ゲームを生成して返す"""
     data = (deal, player0, player1, terminal)
     return Game(data)
 
 
 def Game_start(game: Game) -> Player:
+    """ゲームを開始し、勝ったプレイヤーを返す"""
     deal = game[0]
     turn_player = game[1]
     opponent_player = game[2]
@@ -61,11 +63,12 @@ def Game_start(game: Game) -> Player:
 
         if Action_is_ask(action):
             ask_action = cast(AskAction, action)
-            card_str = Card_to_str(
+            card_number = Card_get_number(
                 AskAction_get_card(ask_action)
             )
             Terminal_put_str(
-                terminal, f"{turn_player_name} asked {card_str}"
+                terminal,
+                f"{turn_player_name} asked {card_number}",
             )
 
             is_hit = AskAction_is_hit(ask_action, opponent_hand)
@@ -74,12 +77,12 @@ def Game_start(game: Game) -> Player:
             Terminal_put_empty_line(terminal)
         else:
             guess_action = cast(GuessAction, action)
-            card_str = Card_to_str(
+            card_number = Card_get_number(
                 GuessAction_get_card(guess_action)
             )
             Terminal_put_str(
                 terminal,
-                f"{turn_player_name} guessed {card_str}",
+                f"{turn_player_name} guessed {card_number}",
             )
 
             is_hit = GuessAction_is_hit(guess_action, rest_card)
