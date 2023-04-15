@@ -46,10 +46,6 @@ class HumanPlayer:
 
             return action
 
-    def __format_cards(self, cards: list[Card]) -> str:
-        card_numbers = [card.number for card in cards]
-        return ", ".join(map(str, card_numbers))
-
     def __print_help(
         self,
         available_actions: ActionList,
@@ -80,6 +76,10 @@ class HumanPlayer:
             self.__terminal.put_str(guess_help)
 
         self.__terminal.put_str("  exit")
+
+    def __format_cards(self, cards: list[Card]) -> str:
+        card_numbers = [card.number for card in cards]
+        return ", ".join(map(str, card_numbers))
 
     def __get_command(self) -> tuple[Optional[str], list[str]]:
         input_str = self.__terminal.get_str(f"{self.__name}> ")

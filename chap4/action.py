@@ -111,7 +111,7 @@ class ActionList:
                 if not hand.has_card(card):
                     guess_actions.append(GuessAction(card))
 
-        return ActionList(ask_actions, guess_actions)
+        return cls(ask_actions, guess_actions)
 
 
 if __name__ == "__main__":
