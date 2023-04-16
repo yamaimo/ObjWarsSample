@@ -168,12 +168,12 @@ with TestSubject("select_action_human()") as subject:
         try:
             hand = [1, 2, 3, 4]
             prev_action = None
-            action = select_action_human(hand, prev_action)
+            selected = select_action_human(hand, prev_action)
         finally:
             sys.stdin = sys.__stdin__
             sys.stdout = sys.__stdout__
         expected = {"kind": "ask", "card": 1}
-        return action == expected
+        return selected == expected
 
     @subject.testcase("guess.")
     def test_guess() -> bool:
@@ -183,12 +183,12 @@ with TestSubject("select_action_human()") as subject:
         try:
             hand = [5, 6, 7, 8]
             prev_action = {"kind": "ask", "card": 1}
-            action = select_action_human(hand, prev_action)
+            selected = select_action_human(hand, prev_action)
         finally:
             sys.stdin = sys.__stdin__
             sys.stdout = sys.__stdout__
         expected = {"kind": "guess", "card": 1}
-        return action == expected
+        return selected == expected
 
     @subject.testcase("exit.")
     def test_exit() -> bool:
@@ -282,29 +282,29 @@ with TestSubject("select_action_human()") as subject:
 
 with TestSubject("select_action_ai()") as subject:
 
-    @subject.testcase("print help (prev action is None).")
+    @subject.testcase("select (prev action is None).")
     def test_select_with_prev_action_None() -> bool:
         # 標準出力を無視する
         with redirect_stdout(StringIO()):
             hand = [1, 2, 3, 4]
             prev_action = None
-            action = select_action_ai(hand, prev_action)
+            selected = select_action_ai(hand, prev_action)
             available_actions = get_available_actions(
                 hand, prev_action
             )
-            return action in available_actions
+            return selected in available_actions
 
-    @subject.testcase("print help (prev action is not None).")
+    @subject.testcase("select (prev action is not None).")
     def test_select_with_prev_action_not_None() -> bool:
         # 標準出力を無視する
         with redirect_stdout(StringIO()):
             hand = [1, 2, 3, 4]
             prev_action = {"kind": "ask", "card": 1}
-            action = select_action_ai(hand, prev_action)
+            selected = select_action_ai(hand, prev_action)
             available_actions = get_available_actions(
                 hand, prev_action
             )
-            return action in available_actions
+            return selected in available_actions
 
     # handやprev_actionが不正な場合のテストは省略（本当は必要）
 
