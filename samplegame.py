@@ -253,7 +253,7 @@ class ActionList:
 
     @property
     def all_actions(self) -> list[Action]:
-        return self.__ask_actions + self.__guess_actions  # type: ignore
+        return self.__ask_actions + self.__guess_actions  # type: ignore  # noqa: B950
 
     @property
     def ask_actions(self) -> list[AskAction]:
@@ -390,11 +390,11 @@ class HumanPlayer(Player):
         ]
         if ask_cards:
             print(
-                f"  ask <card>      (<card>: {self.__format_cards(ask_cards)})"
+                f"  ask <card>      (<card>: {self.__format_cards(ask_cards)})"  # noqa: B950
             )
         if guess_cards:
             print(
-                f"  guess <card>    (<card>: {self.__format_cards(guess_cards)})"
+                f"  guess <card>    (<card>: {self.__format_cards(guess_cards)})"  # noqa: B950
             )
         print("  exit")
 
@@ -634,7 +634,7 @@ class SmartAI(Player, GameObserver):
             guess = GuessAction(self.__maybe_card)
             assert (
                 guess in available_actions
-            ), f"Invalid action. (action: {guess}, available: {available_actions})"
+            ), f"Invalid action. (action: {guess}, available: {available_actions})"  # noqa: B950
             return guess
 
         # そうでない場合、推測可能なら確率で推測する
@@ -648,7 +648,7 @@ class SmartAI(Player, GameObserver):
                 guess = GuessAction(selected)
                 assert (
                     guess in available_actions
-                ), f"Invalid action. (action: {guess}, available: {available_actions})"
+                ), f"Invalid action. (action: {guess}, available: {available_actions})"  # noqa: B950
                 return guess
 
         # そうでない場合、可能なら確率でブラフする
@@ -660,7 +660,7 @@ class SmartAI(Player, GameObserver):
                 ask = AskAction(selected)
                 assert (
                     ask in available_actions
-                ), f"Invalid action. (action: {ask}, available: {available_actions})"
+                ), f"Invalid action. (action: {ask}, available: {available_actions})"  # noqa: B950
                 return ask
 
         # そうでない場合、質問する
@@ -668,7 +668,7 @@ class SmartAI(Player, GameObserver):
         ask = AskAction(selected)
         assert (
             ask in available_actions
-        ), f"Invalid action. (action: {ask}, available: {available_actions})"
+        ), f"Invalid action. (action: {ask}, available: {available_actions})"  # noqa: B950
         return ask
 
     def player_asked(
