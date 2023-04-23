@@ -23,6 +23,7 @@ class HumanPlayer:
     def select_action(
         self, available_actions: ActionList
     ) -> Action:
+        """人のプレイヤーに行動を選択させて返す"""
         while True:
             self.__print_help(available_actions)
 
