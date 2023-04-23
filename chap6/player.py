@@ -1,12 +1,25 @@
 import random
-from typing import Optional, Union
+from typing import Optional, Protocol
 
 from action import Action, ActionList, AskAction, GuessAction
 from card import Card, Hand
 from terminal import Terminal
 
 
-class HumanPlayer:
+class Player(Protocol):
+    @property
+    def name(self) -> str:
+        """プレイヤーの名前を返す"""
+        ...
+
+    def select_action(
+        self, available_actions: ActionList
+    ) -> Action:
+        """プレイヤーに行動を選択させて返す"""
+        ...
+
+
+class HumanPlayer(Player):
     def __init__(
         self, name: str, hand: Hand, terminal: Terminal
     ) -> None:
@@ -120,7 +133,7 @@ class HumanPlayer:
         return action
 
 
-class RandomAI:
+class RandomAI(Player):
     def __init__(
         self, name: str, random_state: Optional[int] = None
     ) -> None:
@@ -138,9 +151,6 @@ class RandomAI:
     ) -> Action:
         """行動をAIにランダムに選択させて返す"""
         return random.choice(available_actions.all_actions)
-
-
-Player = Union[HumanPlayer, RandomAI]
 
 
 if __name__ == "__main__":
