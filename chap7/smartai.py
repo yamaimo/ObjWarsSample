@@ -63,7 +63,8 @@ class SmartAI(Player, GameObserver):  # type: ignore
         """
         AIに行動を選択させて返す
         以下のアルゴリズムで選択する：
-        1. 推測したカードがあるなら推測する
+        1. 質問していないカードが1枚、
+           もしくは推測したカードがあるなら推測する
         2. そうでない場合、推測可能なら確率で推測する
         3. 推測しない場合、可能なら確率でブラフする
         4. ブラフしない場合、単に質問する
@@ -83,7 +84,9 @@ class SmartAI(Player, GameObserver):  # type: ignore
 
     def __guess_with_maybe_card(self) -> Optional[GuessAction]:
         guess: Optional[GuessAction] = None
-        if self.__maybe_card is not None:
+        if len(self.__rest_cards) == 1:
+            guess = GuessAction(self.__rest_cards[0])
+        elif self.__maybe_card is not None:
             guess = GuessAction(self.__maybe_card)
         return guess
 
@@ -92,10 +95,19 @@ class SmartAI(Player, GameObserver):  # type: ignore
     ) -> Optional[GuessAction]:
         guess: Optional[GuessAction] = None
         if guess_actions:
-            guess_th = 1 / len(self.__rest_cards)
-            if random.random() <= guess_th:
-                selected_card = random.choice(self.__rest_cards)
-                guess = GuessAction(selected_card)
+            if self.__rest_cards:
+                guess_th = 1 / len(self.__rest_cards)
+                if random.random() <= guess_th:
+                    selected_card = random.choice(
+                        self.__rest_cards
+                    )
+                    guess = GuessAction(selected_card)
+            else:
+                # 相手のブラフと判断したカードがブラフではなく、
+                # しかし相手がそのカードを推測しなかった場合、
+                # 質問してないカードがなくなることがある
+                # この場合はランダムに推測する
+                guess = random.choice(guess_actions)
         return guess
 
     def __may_bluff(self) -> Optional[AskAction]:
@@ -139,11 +151,19 @@ class SmartAI(Player, GameObserver):  # type: ignore
             if ask.card in self.__bluff_cards:
                 self.__bluff_cards.remove(ask.card)
             if not is_hit:
-                # FIXME: ブラフの確率の閾値を考えた方がいい
-                if random.random() <= 0.8:
-                    self.__maybe_card = ask.card
+                # 質問していないカードに入っていないなら
+                # すでに質問したカードしてヒットしたカードなので
+                # 確実にブラフ -> 無視する
+                if ask.card not in self.__rest_cards:
+                    pass
                 else:
-                    if ask.card in self.__rest_cards:
+                    # 質問してないカードが多いときの方が
+                    # たまたま当たった可能性は低い
+                    # （＝ブラフの可能性高い）
+                    not_bluff_th = 1 / len(self.__rest_cards)
+                    if random.random() <= not_bluff_th:
+                        self.__maybe_card = ask.card
+                    else:
                         self.__rest_cards.remove(ask.card)
 
     def player_guessed(
