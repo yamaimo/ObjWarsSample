@@ -18,11 +18,11 @@ class SmartAI(Player, GameObserver):  # type: ignore
         self.__hand = hand
         self.__random_state = random_state
 
-        # 質問していないカード
+        # 伏せられたカードの候補
         self.__rest_cards: list[Card] = []
-        # ブラフに使えるカード
+        # ブラフに使えるカードの一覧
         self.__bluff_cards: list[Card] = []
-        # 推測したカード
+        # 次に推測するカード
         self.__maybe_card: Optional[Card] = None
 
         self.__init_state()
@@ -63,8 +63,8 @@ class SmartAI(Player, GameObserver):  # type: ignore
         """
         AIに行動を選択させて返す
         以下のアルゴリズムで選択する：
-        1. 質問していないカードが1枚、
-           もしくは推測したカードがあるなら推測する
+        1. 伏せられたカードの候補が1枚、
+           もしくは次に推測するカードがあるなら推測する
         2. そうでない場合、推測可能なら確率で推測する
         3. 推測しない場合、可能なら確率でブラフする
         4. ブラフしない場合、単に質問する
@@ -105,7 +105,7 @@ class SmartAI(Player, GameObserver):  # type: ignore
             else:
                 # 相手のブラフと判断したカードがブラフではなく、
                 # しかし相手がそのカードを推測しなかった場合、
-                # 質問してないカードがなくなることがある
+                # 伏せられたカードの候補がなくなることがある
                 # この場合はランダムに推測する
                 guess = random.choice(guess_actions)
         return guess
@@ -132,13 +132,14 @@ class SmartAI(Player, GameObserver):  # type: ignore
         """プレイヤーが質問したときに実行される"""
         # 自分が質問したときは、
         # 1. ブラフならブラフに使えるカードから除外
-        # 2. 質問なら質問していないカードから除外
-        #    そしてヒットしなかったら相手の手札にないので推測候補とする
+        # 2. 質問なら伏せられたカードの候補から除外
+        #    そしてヒットしなかったら相手の手札にないので
+        #    次に推測するカードとする
         # そうでない場合、
         # 1. まず質問されたカードはブラフに使えなくなる
         # 2. そしてヒットしなかった場合それは
         #    a. 相手のブラフ（相手の手札にある）
-        #    b. 残ったカード
+        #    b. 伏せられたカード
         #    のいずれかなので、確率で次の手を考える
         if player == self:
             if ask.card in self.__bluff_cards:
@@ -151,13 +152,13 @@ class SmartAI(Player, GameObserver):  # type: ignore
             if ask.card in self.__bluff_cards:
                 self.__bluff_cards.remove(ask.card)
             if not is_hit:
-                # 質問していないカードに入っていないなら
-                # すでに質問したカードしてヒットしたカードなので
+                # 伏せられたカードの候補に入っていないなら
+                # すでに質問してヒットしたカードなので
                 # 確実にブラフ -> 無視する
                 if ask.card not in self.__rest_cards:
                     pass
                 else:
-                    # 質問してないカードが多いときの方が
+                    # 伏せられたカードの候補が多いときの方が
                     # たまたま当たった可能性は低い
                     # （＝ブラフの可能性高い）
                     not_bluff_th = 1 / len(self.__rest_cards)
