@@ -7,30 +7,17 @@ with TestSubject("get_available_actions()") as subject:
     def test_prev_action_is_None() -> bool:
         hand = [1, 2, 3, 4]
         prev_action = None
-        available_actions = get_available_actions(
-            hand, prev_action
-        )
-        expected = [
-            {"kind": "ask", "card": card}
-            for card in range(1, 10)
-        ]
+        available_actions = get_available_actions(hand, prev_action)
+        expected = [{"kind": "ask", "card": card} for card in range(1, 10)]
         return available_actions == expected
 
     @subject.testcase("prev action is not None case.")
     def test_prev_action_is_not_None() -> bool:
         hand = [1, 2, 3, 4]
         prev_action = {"kind": "ask", "card": 1}
-        available_actions = get_available_actions(
-            hand, prev_action
-        )
-        expected = [
-            {"kind": "ask", "card": card}
-            for card in range(2, 10)
-        ]
-        expected += [
-            {"kind": "guess", "card": card}
-            for card in range(5, 10)
-        ]
+        available_actions = get_available_actions(hand, prev_action)
+        expected = [{"kind": "ask", "card": card} for card in range(2, 10)]
+        expected += [{"kind": "guess", "card": card} for card in range(5, 10)]
         return available_actions == expected
 
     @subject.testcase("hand number is invalid case.")

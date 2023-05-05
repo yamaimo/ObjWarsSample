@@ -11,12 +11,8 @@ with TestSubject("SmartAI") as subject:
     def test_init_state() -> bool:
         ai = SmartAI("ai", hand, 0)
 
-        rest_cards_expected = [
-            Card(number) for number in [5, 6, 7, 8, 9]
-        ]
-        bluff_cards_expected = [
-            Card(number) for number in [1, 2, 3, 4]
-        ]
+        rest_cards_expected = [Card(number) for number in [5, 6, 7, 8, 9]]
+        bluff_cards_expected = [Card(number) for number in [1, 2, 3, 4]]
 
         if ai.rest_cards != rest_cards_expected:
             return False
@@ -34,12 +30,8 @@ with TestSubject("SmartAI") as subject:
         ai.player_asked(ai, AskAction(Card(5)), True)
 
         # 5を質問したので質問してないカードから除かれる
-        rest_cards_expected = [
-            Card(number) for number in [6, 7, 8, 9]
-        ]
-        bluff_cards_expected = [
-            Card(number) for number in [1, 2, 3, 4]
-        ]
+        rest_cards_expected = [Card(number) for number in [6, 7, 8, 9]]
+        bluff_cards_expected = [Card(number) for number in [1, 2, 3, 4]]
 
         if ai.rest_cards != rest_cards_expected:
             return False
@@ -57,12 +49,8 @@ with TestSubject("SmartAI") as subject:
         ai.player_asked(ai, AskAction(Card(1)), False)
 
         # 1をブラフしたのでブラフに使えるカードから除かれる
-        rest_cards_expected = [
-            Card(number) for number in [5, 6, 7, 8, 9]
-        ]
-        bluff_cards_expected = [
-            Card(number) for number in [2, 3, 4]
-        ]
+        rest_cards_expected = [Card(number) for number in [5, 6, 7, 8, 9]]
+        bluff_cards_expected = [Card(number) for number in [2, 3, 4]]
 
         if ai.rest_cards != rest_cards_expected:
             return False
@@ -81,12 +69,8 @@ with TestSubject("SmartAI") as subject:
         ai.player_asked(opponent, AskAction(Card(1)), True)
 
         # 1を質問されたのでブラフに使えるカードから除かれる
-        rest_cards_expected = [
-            Card(number) for number in [5, 6, 7, 8, 9]
-        ]
-        bluff_cards_expected = [
-            Card(number) for number in [2, 3, 4]
-        ]
+        rest_cards_expected = [Card(number) for number in [5, 6, 7, 8, 9]]
+        bluff_cards_expected = [Card(number) for number in [2, 3, 4]]
 
         if ai.rest_cards != rest_cards_expected:
             return False
@@ -107,12 +91,8 @@ with TestSubject("SmartAI") as subject:
         ai.player_asked(opponent, AskAction(Card(9)), False)
 
         # 相手のブラフとして扱うので質問してないカードから除かれる
-        rest_cards_expected = [
-            Card(number) for number in [5, 6, 7, 8]
-        ]
-        bluff_cards_expected = [
-            Card(number) for number in [1, 2, 3, 4]
-        ]
+        rest_cards_expected = [Card(number) for number in [5, 6, 7, 8]]
+        bluff_cards_expected = [Card(number) for number in [1, 2, 3, 4]]
 
         if ai.rest_cards != rest_cards_expected:
             return False
@@ -126,12 +106,8 @@ with TestSubject("SmartAI") as subject:
         ai.player_asked(opponent, AskAction(Card(9)), False)
 
         # 相手のブラフとして扱わないので推測候補にする
-        rest_cards_expected = [
-            Card(number) for number in [5, 6, 7, 8, 9]
-        ]
-        bluff_cards_expected = [
-            Card(number) for number in [1, 2, 3, 4]
-        ]
+        rest_cards_expected = [Card(number) for number in [5, 6, 7, 8, 9]]
+        bluff_cards_expected = [Card(number) for number in [1, 2, 3, 4]]
 
         if ai.rest_cards != rest_cards_expected:
             return False

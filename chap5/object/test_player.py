@@ -24,9 +24,7 @@ with TestSubject("HumanPlayer") as subject:
         terminal = Terminal(in_stream, out_stream)
         player = HumanPlayer(name, hand, terminal)
         prev_action = None
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         try:
             player.select_action(available_actions)
         except Exception:
@@ -50,9 +48,7 @@ with TestSubject("HumanPlayer") as subject:
         terminal = Terminal(in_stream, out_stream)
         player = HumanPlayer(name, hand, terminal)
         prev_action = AskAction(Card(1))
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         try:
             player.select_action(available_actions)
         except Exception:
@@ -78,9 +74,7 @@ with TestSubject("HumanPlayer") as subject:
         terminal = Terminal(in_stream, out_stream)
         player = HumanPlayer(name, hand, terminal)
         prev_action = None
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         selected = player.select_action(available_actions)
         expected = AskAction(Card(1))
         return selected == expected  # type: ignore
@@ -92,9 +86,7 @@ with TestSubject("HumanPlayer") as subject:
         terminal = Terminal(in_stream, out_stream)
         player = HumanPlayer(name, hand, terminal)
         prev_action = AskAction(Card(1))
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         selected = player.select_action(available_actions)
         expected = GuessAction(Card(5))
         return selected == expected  # type: ignore
@@ -106,9 +98,7 @@ with TestSubject("HumanPlayer") as subject:
         terminal = Terminal(in_stream, out_stream)
         player = HumanPlayer(name, hand, terminal)
         prev_action = None
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         try:
             player.select_action(available_actions)
             return False
@@ -125,9 +115,7 @@ with TestSubject("HumanPlayer") as subject:
         out_stream = StringIO()
         terminal = Terminal(in_stream, out_stream)
         player = HumanPlayer(name, hand, terminal)
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         try:
             player.select_action(available_actions)
             return False
@@ -146,45 +134,31 @@ with TestSubject("HumanPlayer") as subject:
 
     @subject.testcase("unknown command.")
     def test_unknown_command() -> bool:
-        return test_error_message(
-            "dummy", "Unknown Command. (command: dummy)"
-        )
+        return test_error_message("dummy", "Unknown Command. (command: dummy)")
 
     @subject.testcase("ask number is empty.")
     def test_ask_number_is_empty() -> bool:
-        return test_error_message(
-            "ask", "Card is not specified."
-        )
+        return test_error_message("ask", "Card is not specified.")
 
     @subject.testcase("ask number is invalid.")
     def test_ask_number_is_invalid() -> bool:
-        return test_error_message(
-            "ask abc", "invalid literal for int()"
-        )
+        return test_error_message("ask abc", "invalid literal for int()")
 
     @subject.testcase("ask number is out of range.")
     def test_ask_number_is_out_of_range() -> bool:
-        return test_error_message(
-            "ask 10", "Invalid number. (number: 10)"
-        )
+        return test_error_message("ask 10", "Invalid number. (number: 10)")
 
     @subject.testcase("guess number is empty.")
     def test_guess_number_is_empty() -> bool:
-        return test_error_message(
-            "guess", "Card is not specified."
-        )
+        return test_error_message("guess", "Card is not specified.")
 
     @subject.testcase("guess number is invalid.")
     def test_guess_number_is_invalid() -> bool:
-        return test_error_message(
-            "guess abc", "invalid literal for int()"
-        )
+        return test_error_message("guess abc", "invalid literal for int()")
 
     @subject.testcase("guess number is out of range.")
     def test_guess_number_is_out_of_range() -> bool:
-        return test_error_message(
-            "guess 10", "Invalid number. (number: 10)"
-        )
+        return test_error_message("guess 10", "Invalid number. (number: 10)")
 
     @subject.testcase("action is not available.")
     def test_not_available_action() -> bool:
@@ -204,9 +178,7 @@ with TestSubject("RandomAI") as subject:
     def test_select_with_prev_action_None() -> bool:
         player = RandomAI(name)
         prev_action = None
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         selected = player.select_action(available_actions)
         return selected in available_actions
 
@@ -214,8 +186,6 @@ with TestSubject("RandomAI") as subject:
     def test_select_with_prev_action_not_None() -> bool:
         player = RandomAI(name)
         prev_action = AskAction(Card(1))
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
+        available_actions = ActionList.get_available_actions(hand, prev_action)
         selected = player.select_action(available_actions)
         return selected in available_actions

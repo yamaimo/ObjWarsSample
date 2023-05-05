@@ -14,9 +14,7 @@ with TestSubject("check_action()") as subject:
         rest_card = 9
         # 出力をキャプチャ
         with redirect_stdout(StringIO()) as f:
-            win_player = check_action(
-                player, action, opponent_hand, rest_card
-            )
+            win_player = check_action(player, action, opponent_hand, rest_card)
             if win_player is not None:
                 return False
             output = f.getvalue()
@@ -30,9 +28,7 @@ with TestSubject("check_action()") as subject:
         rest_card = 9
         # 出力をキャプチャ
         with redirect_stdout(StringIO()) as f:
-            win_player = check_action(
-                player, action, opponent_hand, rest_card
-            )
+            win_player = check_action(player, action, opponent_hand, rest_card)
             if win_player is not None:
                 return False
             output = f.getvalue()
@@ -46,9 +42,7 @@ with TestSubject("check_action()") as subject:
         rest_card = 1
         # 出力をキャプチャ
         with redirect_stdout(StringIO()) as f:
-            win_player = check_action(
-                player, action, opponent_hand, rest_card
-            )
+            win_player = check_action(player, action, opponent_hand, rest_card)
             output = f.getvalue()
             return (win_player == 0) and (output == "Hit.\n\n")
 
@@ -60,9 +54,7 @@ with TestSubject("check_action()") as subject:
         rest_card = 9
         # 出力をキャプチャ
         with redirect_stdout(StringIO()) as f:
-            win_player = check_action(
-                player, action, opponent_hand, rest_card
-            )
+            win_player = check_action(player, action, opponent_hand, rest_card)
             output = f.getvalue()
             return (win_player == 1) and (output == "Miss.\n\n")
 
@@ -74,9 +66,7 @@ with TestSubject("check_action()") as subject:
         rest_card = 1
         # 出力をキャプチャ
         with redirect_stdout(StringIO()) as f:
-            win_player = check_action(
-                player, action, opponent_hand, rest_card
-            )
+            win_player = check_action(player, action, opponent_hand, rest_card)
             output = f.getvalue()
             return (win_player == 1) and (output == "Hit.\n\n")
 
@@ -88,9 +78,7 @@ with TestSubject("check_action()") as subject:
         rest_card = 9
         # 出力をキャプチャ
         with redirect_stdout(StringIO()) as f:
-            win_player = check_action(
-                player, action, opponent_hand, rest_card
-            )
+            win_player = check_action(player, action, opponent_hand, rest_card)
             output = f.getvalue()
             return (win_player == 0) and (output == "Miss.\n\n")
 

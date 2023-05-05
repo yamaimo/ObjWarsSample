@@ -31,9 +31,7 @@ class Card:
 
     def __eq__(self, other: Any) -> bool:
         """カードが同じか返す"""
-        return isinstance(other, Card) and (
-            self.__number == other.number
-        )
+        return isinstance(other, Card) and (self.__number == other.number)
 
     def __lt__(self, other: "Card") -> bool:
         """カードの大小比較"""
@@ -42,12 +40,7 @@ class Card:
     @classmethod
     def get_all_cards(cls) -> list["Card"]:
         """すべてのカードを生成して返す"""
-        return [
-            cls(number)
-            for number in range(
-                cls.MIN_NUMBER, cls.MAX_NUMBER + 1
-            )
-        ]
+        return [cls(number) for number in range(cls.MIN_NUMBER, cls.MAX_NUMBER + 1)]
 
 
 class Hand:
@@ -57,12 +50,8 @@ class Hand:
         カードのリストが不正な場合はAssertionError
         """
         # 手札のチェック
-        assert (
-            len(cards) == 4
-        ), f"The number of cards is invalid. (cards: {cards})"
-        assert (
-            len(set(cards)) == 4
-        ), f"There are the same cards. (cards: {cards})"
+        assert len(cards) == 4, f"The number of cards is invalid. (cards: {cards})"
+        assert len(set(cards)) == 4, f"There are the same cards. (cards: {cards})"
 
         self.__cards = sorted(cards)
 
@@ -77,22 +66,13 @@ class Hand:
 
 
 class Deal:
-    def __init__(
-        self,
-        player0_hand: Hand,
-        player1_hand: Hand,
-        rest_card: Card,
-    ) -> None:
+    def __init__(self, player0_hand: Hand, player1_hand: Hand, rest_card: Card) -> None:
         """
         ディールを初期化する
         手札や残ったカードが不正な場合はAssertionError
         """
         # 使われてるカードのチェック
-        used_card_set = set(
-            player0_hand.cards
-            + player1_hand.cards
-            + [rest_card]
-        )
+        used_card_set = set(player0_hand.cards + player1_hand.cards + [rest_card])
         all_card_set = set(Card.get_all_cards())
         assert (
             used_card_set == all_card_set
@@ -119,9 +99,7 @@ class Deal:
 
 
 class Dealer:
-    def __init__(
-        self, random_state: Optional[int] = None
-    ) -> None:
+    def __init__(self, random_state: Optional[int] = None) -> None:
         """ディーラーを初期化する"""
         self.__random_state = random_state
 
@@ -132,9 +110,7 @@ class Dealer:
         """
         random.seed(self.__random_state)
         all_cards = Card.get_all_cards()
-        shuffled_cards = random.sample(
-            all_cards, len(all_cards)
-        )
+        shuffled_cards = random.sample(all_cards, len(all_cards))
         player0_hand = Hand(shuffled_cards[:4])
         player1_hand = Hand(shuffled_cards[4:8])
         rest_card = shuffled_cards[-1]

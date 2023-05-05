@@ -28,14 +28,10 @@ with TestSubject("AskAction") as subject:
 
     @subject.testcase("check whether ask is hit.")
     def test_ask_is_hit() -> bool:
-        opponent_hand = Hand(
-            [Card(number) for number in range(1, 5)]
-        )
+        opponent_hand = Hand([Card(number) for number in range(1, 5)])
         if not action.is_hit(opponent_hand):
             return False
-        opponent_hand = Hand(
-            [Card(number) for number in range(2, 6)]
-        )
+        opponent_hand = Hand([Card(number) for number in range(2, 6)])
         if action.is_hit(opponent_hand):
             return False
         return True
@@ -77,12 +73,8 @@ with TestSubject("GuessAction") as subject:
 
 
 with TestSubject("ActionList") as subject:
-    ask_actions = [
-        AskAction(Card(number)) for number in range(1, 3)
-    ]
-    guess_actions = [
-        GuessAction(Card(number)) for number in range(1, 4)
-    ]
+    ask_actions = [AskAction(Card(number)) for number in range(1, 3)]
+    guess_actions = [GuessAction(Card(number)) for number in range(1, 4)]
     action_list = ActionList(ask_actions, guess_actions)
 
     @subject.testcase("get ask actions.")
@@ -92,11 +84,7 @@ with TestSubject("ActionList") as subject:
 
     @subject.testcase("get guess actions.")
     def test_get_guess_actions() -> bool:
-        expected = [
-            GuessAction(Card(1)),
-            GuessAction(Card(2)),
-            GuessAction(Card(3)),
-        ]
+        expected = [GuessAction(Card(1)), GuessAction(Card(2)), GuessAction(Card(3))]
         return action_list.guess_actions == expected  # type: ignore
 
     @subject.testcase("get all actions.")
@@ -135,29 +123,17 @@ with TestSubject("ActionList") as subject:
     def test_get_available_actions_with_prev_None() -> bool:
         hand = Hand([Card(number) for number in range(1, 5)])
         prev_action = None
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
-        expected_all = [
-            AskAction(Card(number)) for number in range(1, 10)
-        ]
-        return available_actions.all_actions == expected_all  # type: ignore  # noqa: B950
+        available_actions = ActionList.get_available_actions(hand, prev_action)
+        expected_all = [AskAction(Card(number)) for number in range(1, 10)]
+        return available_actions.all_actions == expected_all  # type: ignore
 
     @subject.testcase("available actions (prev is not None)")
     def test_get_available_actions_with_prev_not_None() -> bool:
         hand = Hand([Card(number) for number in range(1, 5)])
         prev_action = AskAction(Card(1))
-        available_actions = ActionList.get_available_actions(
-            hand, prev_action
-        )
-        expected_ask = [
-            AskAction(Card(number)) for number in range(2, 10)
-        ]
-        expected_guess = [
-            GuessAction(Card(number)) for number in range(5, 10)
-        ]
-        return (  # type: ignore
-            available_actions.ask_actions == expected_ask
-        ) and (
+        available_actions = ActionList.get_available_actions(hand, prev_action)
+        expected_ask = [AskAction(Card(number)) for number in range(2, 10)]
+        expected_guess = [GuessAction(Card(number)) for number in range(5, 10)]
+        return (available_actions.ask_actions == expected_ask) and (  # type: ignore
             available_actions.guess_actions == expected_guess
         )

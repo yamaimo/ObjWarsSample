@@ -23,9 +23,7 @@ class AskAction:
 
     def __eq__(self, other: Any) -> bool:
         """質問が同じか返す"""
-        return isinstance(other, AskAction) and (
-            self.__card == other.card
-        )
+        return isinstance(other, AskAction) and (self.__card == other.card)
 
 
 class GuessAction:
@@ -48,9 +46,7 @@ class GuessAction:
 
     def __eq__(self, other: Any) -> bool:
         """推測が同じか返す"""
-        return isinstance(other, GuessAction) and (
-            self.__card == other.card
-        )
+        return isinstance(other, GuessAction) and (self.__card == other.card)
 
 
 Action = Union[AskAction, GuessAction]
@@ -58,9 +54,7 @@ Action = Union[AskAction, GuessAction]
 
 class ActionList:
     def __init__(
-        self,
-        ask_actions: list[AskAction],
-        guess_actions: list[GuessAction],
+        self, ask_actions: list[AskAction], guess_actions: list[GuessAction]
     ) -> None:
         """行動の一覧を初期化する"""
         self.__ask_actions = ask_actions
@@ -79,10 +73,7 @@ class ActionList:
     @property
     def all_actions(self) -> list[Action]:
         """行動の一覧を返す"""
-        return (
-            self.__ask_actions
-            + self.__guess_actions  # type: ignore
-        )
+        return self.__ask_actions + self.__guess_actions  # type: ignore
 
     def __contains__(self, action: Action) -> bool:
         """指定された行動が一覧に含まれるか返す"""
@@ -100,9 +91,7 @@ class ActionList:
         手番プレイヤーの手札と直前の行動から
         選択可能な行動の一覧を生成して返す
         """
-        ask_actions = [
-            AskAction(card) for card in Card.get_all_cards()
-        ]
+        ask_actions = [AskAction(card) for card in Card.get_all_cards()]
         guess_actions = []
 
         if prev_action is not None:
@@ -127,11 +116,7 @@ if __name__ == "__main__":
     print(guess)
     print(guess.is_hit(deal.rest_card))
 
-    print(
-        ActionList.get_available_actions(
-            deal.player0_hand, None
-        )
-    )
+    print(ActionList.get_available_actions(deal.player0_hand, None))
     print(
         ActionList.get_available_actions(
             deal.player1_hand,

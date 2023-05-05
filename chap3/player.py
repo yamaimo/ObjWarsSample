@@ -13,13 +13,7 @@ from action import (
     GuessAction_get_card,
     GuessAction_init,
 )
-from card import (
-    Card,
-    Card_get_number,
-    Card_init,
-    Hand,
-    Hand_get_cards,
-)
+from card import Card, Card_get_number, Card_init, Hand, Hand_get_cards
 from terminal import (
     Terminal,
     Terminal_get_str,
@@ -32,9 +26,7 @@ from terminal import (
 HumanPlayer = NewType("HumanPlayer", tuple[str, Hand, Terminal])
 
 
-def HumanPlayer_init(
-    name: str, hand: Hand, terminal: Terminal
-) -> HumanPlayer:
+def HumanPlayer_init(name: str, hand: Hand, terminal: Terminal) -> HumanPlayer:
     """人のプレイヤーを生成して返す"""
     data = (name, hand, terminal)
     return HumanPlayer(data)
@@ -62,9 +54,7 @@ def HumanPlayer_select_action(
     ask_numbers = map(Card_get_number, ask_cards)
     ask_str = ", ".join(map(str, ask_numbers))
 
-    guess_actions = ActionList_get_guess_actions(
-        available_actions
-    )
+    guess_actions = ActionList_get_guess_actions(available_actions)
     guess_cards = map(GuessAction_get_card, guess_actions)
     guess_numbers = map(Card_get_number, guess_cards)
     guess_str = ", ".join(map(str, guess_numbers))
@@ -73,15 +63,9 @@ def HumanPlayer_select_action(
         Terminal_put_str(terminal, f"{name} hand: {hand_str}")
         Terminal_put_str(terminal, "Available commands:")
         if ask_str:
-            Terminal_put_str(
-                terminal,
-                f"  ask <card>      (<card>: {ask_str})",
-            )
+            Terminal_put_str(terminal, f"  ask <card>      (<card>: {ask_str})")
         if guess_str:
-            Terminal_put_str(
-                terminal,
-                f"  guess <card>    (<card>: {guess_str})",
-            )
+            Terminal_put_str(terminal, f"  guess <card>    (<card>: {guess_str})")
         Terminal_put_str(terminal, "  exit")
 
         input_str = Terminal_get_str(terminal, f"{name}> ")
@@ -103,36 +87,25 @@ def HumanPlayer_select_action(
 
         if command == "ask":
             if card is None:
-                Terminal_put_str(
-                    terminal, "Card is not specified."
-                )
+                Terminal_put_str(terminal, "Card is not specified.")
                 Terminal_put_empty_line(terminal)
                 continue
             action = AskAction_init(card)
         elif command == "guess":
             if card is None:
-                Terminal_put_str(
-                    terminal, "Card is not specified."
-                )
+                Terminal_put_str(terminal, "Card is not specified.")
                 Terminal_put_empty_line(terminal)
                 continue
             action = GuessAction_init(card)
         elif command == "exit":
             raise Exception("Exit game.")
         else:
-            Terminal_put_str(
-                terminal,
-                f"Unknown Command. (command: {command})",
-            )
+            Terminal_put_str(terminal, f"Unknown Command. (command: {command})")
             Terminal_put_empty_line(terminal)
             continue
 
-        if not ActionList_contains_action(
-            available_actions, action
-        ):
-            Terminal_put_str(
-                terminal, f"Unavailable. (action: {action})"
-            )
+        if not ActionList_contains_action(available_actions, action):
+            Terminal_put_str(terminal, f"Unavailable. (action: {action})")
             Terminal_put_empty_line(terminal)
             continue
         else:
@@ -144,9 +117,7 @@ def HumanPlayer_select_action(
 RandomAI = NewType("RandomAI", tuple[str])
 
 
-def RandomAI_init(
-    name: str, random_state: Optional[int] = None
-) -> RandomAI:
+def RandomAI_init(name: str, random_state: Optional[int] = None) -> RandomAI:
     """ランダム選択のAIを生成して返す"""
     random.seed(random_state)
     data = (name,)
@@ -158,13 +129,9 @@ def RandomAI_get_name(player: RandomAI) -> str:
     return player[0]
 
 
-def RandomAI_select_action(
-    player: RandomAI, available_actions: ActionList
-) -> Action:
+def RandomAI_select_action(player: RandomAI, available_actions: ActionList) -> Action:
     """行動をAIにランダムに選択させて返す"""
-    return random.choice(
-        ActionList_get_all_actions(available_actions)
-    )
+    return random.choice(ActionList_get_all_actions(available_actions))
 
 
 # Player ====================
@@ -172,30 +139,18 @@ def RandomAI_select_action(
 NameFunc = Callable[[Any], str]
 SelectActionFunc = Callable[[Any, ActionList], Action]
 
-Player = NewType(
-    "Player", tuple[Any, NameFunc, SelectActionFunc]
-)
+Player = NewType("Player", tuple[Any, NameFunc, SelectActionFunc])
 
 
-def Player_init_with_human_player(
-    human_player: HumanPlayer,
-) -> Player:
+def Player_init_with_human_player(human_player: HumanPlayer) -> Player:
     """人のプレイヤーからプレイヤーを生成して返す"""
-    data = (
-        human_player,
-        HumanPlayer_get_name,
-        HumanPlayer_select_action,
-    )
+    data = (human_player, HumanPlayer_get_name, HumanPlayer_select_action)
     return Player(data)
 
 
 def Player_init_with_random_ai(random_ai: RandomAI) -> Player:
     """ランダム選択のAIからプレイヤーを生成して返す"""
-    data = (
-        random_ai,
-        RandomAI_get_name,
-        RandomAI_select_action,
-    )
+    data = (random_ai, RandomAI_get_name, RandomAI_select_action)
     return Player(data)
 
 
@@ -206,9 +161,7 @@ def Player_get_name(player: Player) -> str:
     return name_func(player_impl)
 
 
-def Player_select_action(
-    player: Player, available_actions: ActionList
-) -> Action:
+def Player_select_action(player: Player, available_actions: ActionList) -> Action:
     """プレイヤーに行動を選択させて返す"""
     player_impl = player[0]
     select_action_func = player[2]
@@ -219,36 +172,26 @@ if __name__ == "__main__":
     from io import StringIO
 
     from action import ActionList_get_available_actions
-    from card import (
-        Deal_get_player0_hand,
-        Dealer_deal,
-        Dealer_init,
-    )
+    from card import Deal_get_player0_hand, Dealer_deal, Dealer_init
     from terminal import Terminal_init
 
     dealer = Dealer_init(0)
     deal = Dealer_deal(dealer)
     hand = Deal_get_player0_hand(deal)
 
-    terminal = Terminal_init(
-        in_stream=StringIO("ask 1\nguess 2\n")
-    )
+    terminal = Terminal_init(in_stream=StringIO("ask 1\nguess 2\n"))
 
     # HumanPlayer
     human = HumanPlayer_init("human", hand, terminal)
     player = Player_init_with_human_player(human)
     name = Player_get_name(player)
 
-    available_actions = ActionList_get_available_actions(
-        hand, None
-    )
+    available_actions = ActionList_get_available_actions(hand, None)
     action = Player_select_action(player, available_actions)
     print(f"{name} select {action}")
     print()
 
-    available_actions = ActionList_get_available_actions(
-        hand, action
-    )
+    available_actions = ActionList_get_available_actions(hand, action)
     action = Player_select_action(player, available_actions)
     print(f"{name} select {action}")
     print()
@@ -258,16 +201,12 @@ if __name__ == "__main__":
     player = Player_init_with_random_ai(rand_ai)
     name = Player_get_name(player)
 
-    available_actions = ActionList_get_available_actions(
-        hand, None
-    )
+    available_actions = ActionList_get_available_actions(hand, None)
     action = Player_select_action(player, available_actions)
     print(f"{name} select {action}")
     print()
 
-    available_actions = ActionList_get_available_actions(
-        hand, action
-    )
+    available_actions = ActionList_get_available_actions(hand, action)
     action = Player_select_action(player, available_actions)
     print(f"{name} select {action}")
     print()

@@ -136,21 +136,15 @@ with TestSubject("select_action_human()") as subject:
 
     @subject.testcase("unknown command.")
     def test_unknown_command() -> bool:
-        return test_error_message(
-            "dummy", "Unknown Command. (command: dummy)"
-        )
+        return test_error_message("dummy", "Unknown Command. (command: dummy)")
 
     @subject.testcase("ask number is empty.")
     def test_ask_number_is_empty() -> bool:
-        return test_error_message(
-            "ask", "Card is not specified."
-        )
+        return test_error_message("ask", "Card is not specified.")
 
     @subject.testcase("ask number is invalid.")
     def test_ask_number_is_invalid() -> bool:
-        return test_error_message(
-            "ask abc", "invalid literal for int()"
-        )
+        return test_error_message("ask abc", "invalid literal for int()")
 
     @subject.testcase("ask number is out of range.")
     def test_ask_number_is_out_of_range() -> bool:
@@ -158,15 +152,11 @@ with TestSubject("select_action_human()") as subject:
 
     @subject.testcase("guess number is empty.")
     def test_guess_number_is_empty() -> bool:
-        return test_error_message(
-            "guess", "Card is not specified."
-        )
+        return test_error_message("guess", "Card is not specified.")
 
     @subject.testcase("guess number is invalid.")
     def test_guess_number_is_invalid() -> bool:
-        return test_error_message(
-            "guess abc", "invalid literal for int()"
-        )
+        return test_error_message("guess abc", "invalid literal for int()")
 
     @subject.testcase("guess number is out of range.")
     def test_guess_number_is_out_of_range() -> bool:

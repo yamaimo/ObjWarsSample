@@ -29,9 +29,7 @@ def get_available_actions(
     - 入力2: 直前の行動（辞書／なし）
     - 出力: 可能な行動一覧（辞書のリスト）
     """
-    actions = [
-        {"kind": "ask", "card": card} for card in range(1, 10)
-    ]
+    actions = [{"kind": "ask", "card": card} for card in range(1, 10)]
 
     if prev_action is not None:
         actions.remove(prev_action)
@@ -42,9 +40,7 @@ def get_available_actions(
     return actions
 
 
-def select_action_human(
-    hand: list[int], prev_action: Optional[Action]
-) -> Action:
+def select_action_human(hand: list[int], prev_action: Optional[Action]) -> Action:
     """
     人の場合の行動選択
     - 入力1: 手番プレイヤーの手札（整数のリスト）
@@ -113,9 +109,7 @@ def select_action_human(
             return action
 
 
-def select_action_ai(
-    hand: list[int], prev_action: Optional[Action]
-) -> Action:
+def select_action_ai(hand: list[int], prev_action: Optional[Action]) -> Action:
     """
     AIの場合の行動選択
     - 入力1: 手番プレイヤーの手札（整数のリスト）
@@ -129,10 +123,7 @@ def select_action_ai(
 
 
 def check_action(
-    player: int,
-    action: Action,
-    opponent_hand: list[int],
-    rest_card: int,
+    player: int, action: Action, opponent_hand: list[int], rest_card: int
 ) -> Optional[int]:
     """
     選択された行動を判定
@@ -162,11 +153,7 @@ def check_action(
     return win_player
 
 
-def start_game(
-    player0_hand: list[int],
-    player1_hand: list[int],
-    rest_card: int,
-) -> int:
+def start_game(player0_hand: list[int], player1_hand: list[int], rest_card: int) -> int:
     """
     ゲームを進行する
     - 入力1: 先手の手札（整数のリスト）
@@ -179,17 +166,11 @@ def start_game(
     prev_action: Optional[Action] = None
     while True:
         if turn_player == 0:
-            action = select_action_human(
-                player0_hand, prev_action
-            )
-            win_player = check_action(
-                0, action, player1_hand, rest_card
-            )
+            action = select_action_human(player0_hand, prev_action)
+            win_player = check_action(0, action, player1_hand, rest_card)
         else:
             action = select_action_ai(player1_hand, prev_action)
-            win_player = check_action(
-                1, action, player0_hand, rest_card
-            )
+            win_player = check_action(1, action, player0_hand, rest_card)
 
         if win_player is not None:
             return win_player
@@ -211,13 +192,9 @@ def show_result(win_player: int) -> None:
 
 
 def main() -> None:
-    """
-    メイン
-    """
+    """メイン"""
     player0_hand, player1_hand, rest_card = deal()
-    win_player = start_game(
-        player0_hand, player1_hand, rest_card
-    )
+    win_player = start_game(player0_hand, player1_hand, rest_card)
     show_result(win_player)
 
 

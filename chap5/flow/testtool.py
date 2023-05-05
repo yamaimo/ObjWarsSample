@@ -15,7 +15,7 @@ class TestSubject:
         print(f"Test {self.__subject} ====================")
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:  # type: ignore  # noqa: B950
+    def __exit__(self, exc_type, exc_value, traceback) -> None:  # type: ignore
         ok_count = sum(self.__results)
         total_count = len(self.__results)
         if total_count == 0:

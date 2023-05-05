@@ -9,9 +9,7 @@ from testtool import TestSubject
 
 
 class ScenarioPlayer(Player):  # type: ignore
-    def __init__(
-        self, name: str, actions: list[Action]
-    ) -> None:
+    def __init__(self, name: str, actions: list[Action]) -> None:
         self.__name = name
         self.__actions = actions
 
@@ -19,13 +17,9 @@ class ScenarioPlayer(Player):  # type: ignore
     def name(self) -> str:
         return self.__name
 
-    def select_action(
-        self, available_actions: ActionList
-    ) -> Action:
+    def select_action(self, available_actions: ActionList) -> Action:
         action = self.__actions.pop(0)
-        assert (
-            action in available_actions
-        ), f"Unavailable action. (action: {action})"
+        assert action in available_actions, f"Unavailable action. (action: {action})"
         return action
 
 
@@ -40,47 +34,29 @@ class NotifyChecker(GameObserver):  # type: ignore
         return len(self.__players)
 
     def get_notify(self, i: int) -> tuple[Player, Action, bool]:
-        return (
-            self.__players[i],
-            self.__actions[i],
-            self.__judges[i],
-        )
+        return self.__players[i], self.__actions[i], self.__judges[i]
 
-    def player_asked(
-        self, player: Player, ask: AskAction, is_hit: bool
-    ) -> None:
+    def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
         self.__players.append(player)
         self.__actions.append(ask)
         self.__judges.append(is_hit)
 
-    def player_guessed(
-        self, player: Player, guess: GuessAction, is_hit: bool
-    ) -> None:
+    def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
         self.__players.append(player)
         self.__actions.append(guess)
         self.__judges.append(is_hit)
 
 
 with TestSubject("Game") as subject:
-    player0_hand = Hand(
-        [Card(number) for number in [1, 2, 3, 4]]
-    )
-    player1_hand = Hand(
-        [Card(number) for number in [5, 6, 7, 8]]
-    )
+    player0_hand = Hand([Card(number) for number in [1, 2, 3, 4]])
+    player1_hand = Hand([Card(number) for number in [5, 6, 7, 8]])
     rest_card = Card(9)
     deal = Deal(player0_hand, player1_hand, rest_card)
 
     @subject.testcase("test scenario 1.")
     def test_scenario1() -> bool:
-        player0 = ScenarioPlayer(
-            "player0",
-            [AskAction(Card(1))],
-        )
-        player1 = ScenarioPlayer(
-            "player1",
-            [GuessAction(Card(1))],
-        )
+        player0 = ScenarioPlayer("player0", [AskAction(Card(1))])
+        player1 = ScenarioPlayer("player1", [GuessAction(Card(1))])
         game = Game(deal, player0, player1)
         checker = NotifyChecker()
         game.add_observer(checker)
@@ -91,33 +67,19 @@ with TestSubject("Game") as subject:
             return False
 
         player, action, is_hit = checker.get_notify(0)
-        if (
-            (player != player0)
-            or (action != AskAction(Card(1)))
-            or is_hit
-        ):
+        if (player != player0) or (action != AskAction(Card(1))) or is_hit:
             return False
 
         player, action, is_hit = checker.get_notify(1)
-        if (
-            (player != player1)
-            or (action != GuessAction(Card(1)))
-            or is_hit
-        ):
+        if (player != player1) or (action != GuessAction(Card(1))) or is_hit:
             return False
 
         return win_player == player0  # type: ignore
 
     @subject.testcase("test scenario 2.")
     def test_scenario2() -> bool:
-        player0 = ScenarioPlayer(
-            "player0",
-            [AskAction(Card(5))],
-        )
-        player1 = ScenarioPlayer(
-            "player1",
-            [GuessAction(Card(9))],
-        )
+        player0 = ScenarioPlayer("player0", [AskAction(Card(5))])
+        player1 = ScenarioPlayer("player1", [GuessAction(Card(9))])
         game = Game(deal, player0, player1)
         checker = NotifyChecker()
         game.add_observer(checker)
@@ -128,33 +90,19 @@ with TestSubject("Game") as subject:
             return False
 
         player, action, is_hit = checker.get_notify(0)
-        if (
-            (player != player0)
-            or (action != AskAction(Card(5)))
-            or (not is_hit)
-        ):
+        if (player != player0) or (action != AskAction(Card(5))) or (not is_hit):
             return False
 
         player, action, is_hit = checker.get_notify(1)
-        if (
-            (player != player1)
-            or (action != GuessAction(Card(9)))
-            or (not is_hit)
-        ):
+        if (player != player1) or (action != GuessAction(Card(9))) or (not is_hit):
             return False
 
         return win_player == player1  # type: ignore
 
     @subject.testcase("test scenario 3.")
     def test_scenario3() -> bool:
-        player0 = ScenarioPlayer(
-            "player0",
-            [AskAction(Card(1)), GuessAction(Card(5))],
-        )
-        player1 = ScenarioPlayer(
-            "player1",
-            [AskAction(Card(5))],
-        )
+        player0 = ScenarioPlayer("player0", [AskAction(Card(1)), GuessAction(Card(5))])
+        player1 = ScenarioPlayer("player1", [AskAction(Card(5))])
         game = Game(deal, player0, player1)
         checker = NotifyChecker()
         game.add_observer(checker)
@@ -165,41 +113,23 @@ with TestSubject("Game") as subject:
             return False
 
         player, action, is_hit = checker.get_notify(0)
-        if (
-            (player != player0)
-            or (action != AskAction(Card(1)))
-            or is_hit
-        ):
+        if (player != player0) or (action != AskAction(Card(1))) or is_hit:
             return False
 
         player, action, is_hit = checker.get_notify(1)
-        if (
-            (player != player1)
-            or (action != AskAction(Card(5)))
-            or is_hit
-        ):
+        if (player != player1) or (action != AskAction(Card(5))) or is_hit:
             return False
 
         player, action, is_hit = checker.get_notify(2)
-        if (
-            (player != player0)
-            or (action != GuessAction(Card(5)))
-            or is_hit
-        ):
+        if (player != player0) or (action != GuessAction(Card(5))) or is_hit:
             return False
 
         return win_player == player1  # type: ignore
 
     @subject.testcase("test scenario 4.")
     def test_scenario4() -> bool:
-        player0 = ScenarioPlayer(
-            "player0",
-            [AskAction(Card(5)), GuessAction(Card(9))],
-        )
-        player1 = ScenarioPlayer(
-            "player1",
-            [AskAction(Card(1))],
-        )
+        player0 = ScenarioPlayer("player0", [AskAction(Card(5)), GuessAction(Card(9))])
+        player1 = ScenarioPlayer("player1", [AskAction(Card(1))])
         game = Game(deal, player0, player1)
         checker = NotifyChecker()
         game.add_observer(checker)
@@ -210,41 +140,23 @@ with TestSubject("Game") as subject:
             return False
 
         player, action, is_hit = checker.get_notify(0)
-        if (
-            (player != player0)
-            or (action != AskAction(Card(5)))
-            or (not is_hit)
-        ):
+        if (player != player0) or (action != AskAction(Card(5))) or (not is_hit):
             return False
 
         player, action, is_hit = checker.get_notify(1)
-        if (
-            (player != player1)
-            or (action != AskAction(Card(1)))
-            or (not is_hit)
-        ):
+        if (player != player1) or (action != AskAction(Card(1))) or (not is_hit):
             return False
 
         player, action, is_hit = checker.get_notify(2)
-        if (
-            (player != player0)
-            or (action != GuessAction(Card(9)))
-            or (not is_hit)
-        ):
+        if (player != player0) or (action != GuessAction(Card(9))) or (not is_hit):
             return False
 
         return win_player == player0  # type: ignore
 
     @subject.testcase("not notify to removed observer.")
     def test_remove_observer() -> bool:
-        player0 = ScenarioPlayer(
-            "player0",
-            [AskAction(Card(1))],
-        )
-        player1 = ScenarioPlayer(
-            "player1",
-            [GuessAction(Card(2))],
-        )
+        player0 = ScenarioPlayer("player0", [AskAction(Card(1))])
+        player1 = ScenarioPlayer("player1", [GuessAction(Card(2))])
         game = Game(deal, player0, player1)
 
         checker1 = NotifyChecker()
@@ -255,9 +167,7 @@ with TestSubject("Game") as subject:
 
         game.start()
 
-        return (checker1.notify_count == 0) and (
-            checker2.notify_count == 2
-        )
+        return (checker1.notify_count == 0) and (checker2.notify_count == 2)
 
 
 with TestSubject("GameView") as subject:
