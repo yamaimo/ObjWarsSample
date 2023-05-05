@@ -7,9 +7,7 @@ from terminal import Terminal
 
 
 class HumanPlayer:
-    def __init__(
-        self, name: str, hand: Hand, terminal: Terminal
-    ) -> None:
+    def __init__(self, name: str, hand: Hand, terminal: Terminal) -> None:
         """人のプレイヤーを初期化する"""
         self.__name = name
         self.__hand = hand
@@ -20,9 +18,7 @@ class HumanPlayer:
         """人のプレイヤーの名前を返す"""
         return self.__name
 
-    def select_action(
-        self, available_actions: ActionList
-    ) -> Action:
+    def select_action(self, available_actions: ActionList) -> Action:
         """人のプレイヤーに行動を選択させて返す"""
         while True:
             self.__print_help(available_actions)
@@ -39,42 +35,27 @@ class HumanPlayer:
                 self.__terminal.put_empty_line()
                 continue
             if action not in available_actions:
-                self.__terminal.put_str(
-                    f"Unavailable. (action: {action})",
-                )
+                self.__terminal.put_str(f"Unavailable. (action: {action})")
                 self.__terminal.put_empty_line()
                 continue
 
             return action
 
-    def __print_help(
-        self,
-        available_actions: ActionList,
-    ) -> None:
+    def __print_help(self, available_actions: ActionList) -> None:
         hand_str = self.__format_cards(self.__hand.cards)
         self.__terminal.put_str(f"Your hand: {hand_str}")
 
         self.__terminal.put_str("Available commands:")
 
-        ask_cards = [
-            action.card
-            for action in available_actions.ask_actions
-        ]
+        ask_cards = [action.card for action in available_actions.ask_actions]
         ask_str = self.__format_cards(ask_cards)
         if ask_str:
-            ask_help = f"  ask <card>      (<card>: {ask_str})"
-            self.__terminal.put_str(ask_help)
+            self.__terminal.put_str(f"  ask <card>      (<card>: {ask_str})")
 
-        guess_cards = [
-            action.card
-            for action in available_actions.guess_actions
-        ]
+        guess_cards = [action.card for action in available_actions.guess_actions]
         guess_str = self.__format_cards(guess_cards)
         if guess_str:
-            guess_help = (
-                f"  guess <card>    (<card>: {guess_str})"
-            )
-            self.__terminal.put_str(guess_help)
+            self.__terminal.put_str(f"  guess <card>    (<card>: {guess_str})")
 
         self.__terminal.put_str("  exit")
 
@@ -90,16 +71,12 @@ class HumanPlayer:
         command = args.pop(0).lower()
         return command, args
 
-    def __parse_command(
-        self, command: str, args: list[str]
-    ) -> Optional[Action]:
+    def __parse_command(self, command: str, args: list[str]) -> Optional[Action]:
         if command == "exit":
             raise Exception("Exit game.")
 
         if command not in ["ask", "guess"]:
-            self.__terminal.put_str(
-                f"Unknown Command. (command: {command})",
-            )
+            self.__terminal.put_str(f"Unknown Command. (command: {command})")
             return None
 
         if len(args) < 1:
@@ -121,9 +98,7 @@ class HumanPlayer:
 
 
 class RandomAI:
-    def __init__(
-        self, name: str, random_state: Optional[int] = None
-    ) -> None:
+    def __init__(self, name: str, random_state: Optional[int] = None) -> None:
         """ランダム選択のAIを初期化する"""
         random.seed(random_state)
         self.__name = name
@@ -133,9 +108,7 @@ class RandomAI:
         """AIの名前を返す"""
         return self.__name
 
-    def select_action(
-        self, available_actions: ActionList
-    ) -> Action:
+    def select_action(self, available_actions: ActionList) -> Action:
         """行動をAIにランダムに選択させて返す"""
         return random.choice(available_actions.all_actions)
 
@@ -157,16 +130,12 @@ if __name__ == "__main__":
     # HumanPlayer
     human = HumanPlayer("human", hand, terminal)
 
-    available_actions = ActionList.get_available_actions(
-        hand, None
-    )
+    available_actions = ActionList.get_available_actions(hand, None)
     action = human.select_action(available_actions)
     print(f"{human.name} select {action}")
     print()
 
-    available_actions = ActionList.get_available_actions(
-        hand, action
-    )
+    available_actions = ActionList.get_available_actions(hand, action)
     action = human.select_action(available_actions)
     print(f"{human.name} select {action}")
     print()
@@ -174,16 +143,12 @@ if __name__ == "__main__":
     # RandomAI
     rand_ai = RandomAI("random", 0)
 
-    available_actions = ActionList.get_available_actions(
-        hand, None
-    )
+    available_actions = ActionList.get_available_actions(hand, None)
     action = rand_ai.select_action(available_actions)
     print(f"{rand_ai.name} select {action}")
     print()
 
-    available_actions = ActionList.get_available_actions(
-        hand, action
-    )
+    available_actions = ActionList.get_available_actions(hand, action)
     action = rand_ai.select_action(available_actions)
     print(f"{rand_ai.name} select {action}")
     print()

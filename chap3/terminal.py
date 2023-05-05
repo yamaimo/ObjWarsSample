@@ -7,8 +7,7 @@ Terminal = NewType("Terminal", tuple[TextIO, TextIO])
 
 
 def Terminal_init(
-    in_stream: TextIO = sys.stdin,
-    out_stream: TextIO = sys.stdout,
+    in_stream: TextIO = sys.stdin, out_stream: TextIO = sys.stdout
 ) -> Terminal:
     """ターミナルを生成して返す"""
     data = (in_stream, out_stream)

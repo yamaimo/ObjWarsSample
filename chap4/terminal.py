@@ -4,9 +4,7 @@ from typing import TextIO
 
 class Terminal:
     def __init__(
-        self,
-        in_stream: TextIO = sys.stdin,
-        out_stream: TextIO = sys.stdout,
+        self, in_stream: TextIO = sys.stdin, out_stream: TextIO = sys.stdout
     ) -> None:
         """ターミナルを初期化する"""
         self.__in_stream = in_stream

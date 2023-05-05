@@ -9,11 +9,8 @@ from player import Player
 
 class SmartAI(Player, GameObserver):  # type: ignore
     def __init__(
-        self,
-        name: str,
-        hand: Hand,
-        random_state: Optional[int] = None,
-    ):
+        self, name: str, hand: Hand, random_state: Optional[int] = None
+    ) -> None:
         self.__name = name
         self.__hand = hand
         self.__random_state = random_state
@@ -29,9 +26,7 @@ class SmartAI(Player, GameObserver):  # type: ignore
 
     def __init_state(self) -> None:
         self.__rest_cards = [
-            card
-            for card in Card.get_all_cards()
-            if not self.__hand.has_card(card)
+            card for card in Card.get_all_cards() if not self.__hand.has_card(card)
         ]
         self.__bluff_cards = list(self.__hand.cards)
         self.__maybe_card = None
@@ -57,9 +52,7 @@ class SmartAI(Player, GameObserver):  # type: ignore
     def maybe_card(self) -> Optional[Card]:
         return self.__maybe_card
 
-    def select_action(
-        self, available_actions: ActionList
-    ) -> Action:
+    def select_action(self, available_actions: ActionList) -> Action:
         """
         AIに行動を選択させて返す
         以下のアルゴリズムで選択する：
@@ -90,17 +83,13 @@ class SmartAI(Player, GameObserver):  # type: ignore
             guess = GuessAction(self.__maybe_card)
         return guess
 
-    def __may_guess(
-        self, guess_actions: list[GuessAction]
-    ) -> Optional[GuessAction]:
+    def __may_guess(self, guess_actions: list[GuessAction]) -> Optional[GuessAction]:
         guess: Optional[GuessAction] = None
         if guess_actions:
             if self.__rest_cards:
                 guess_th = 1 / len(self.__rest_cards)
                 if random.random() <= guess_th:
-                    selected_card = random.choice(
-                        self.__rest_cards
-                    )
+                    selected_card = random.choice(self.__rest_cards)
                     guess = GuessAction(selected_card)
             else:
                 # 相手のブラフと判断したカードがブラフではなく、
@@ -116,9 +105,7 @@ class SmartAI(Player, GameObserver):  # type: ignore
             # 4枚: 5%, 3枚: 10%, 2枚: 15%, 1枚: 20%
             bluff_th = (5 - len(self.__bluff_cards)) / 20
             if random.random() <= bluff_th:
-                selected_card = random.choice(
-                    self.__bluff_cards
-                )
+                selected_card = random.choice(self.__bluff_cards)
                 bluff = AskAction(selected_card)
         return bluff
 
@@ -126,9 +113,7 @@ class SmartAI(Player, GameObserver):  # type: ignore
         selected_card = random.choice(self.__rest_cards)
         return AskAction(selected_card)
 
-    def player_asked(
-        self, player: Player, ask: AskAction, is_hit: bool
-    ) -> None:
+    def player_asked(self, player: Player, ask: AskAction, is_hit: bool) -> None:
         """プレイヤーが質問したときに実行される"""
         # 自分が質問したときは、
         # 1. ブラフならブラフに使えるカードから除外
@@ -167,9 +152,7 @@ class SmartAI(Player, GameObserver):  # type: ignore
                     else:
                         self.__rest_cards.remove(ask.card)
 
-    def player_guessed(
-        self, player: Player, guess: GuessAction, is_hit: bool
-    ) -> None:
+    def player_guessed(self, player: Player, guess: GuessAction, is_hit: bool) -> None:
         """プレイヤーが推測したときに実行される"""
         # 同じゲームをできるように初期化しておく
         self.__init_state()

@@ -43,9 +43,7 @@ def GuessAction_get_card(action: GuessAction) -> Card:
     return action[1]
 
 
-def GuessAction_is_hit(
-    action: GuessAction, rest_card: Card
-) -> bool:
+def GuessAction_is_hit(action: GuessAction, rest_card: Card) -> bool:
     """推測したカードが残りのカードと一致するか返す"""
     return action[1] == rest_card  # type: ignore
 
@@ -67,44 +65,33 @@ def Action_is_guess(action: Action) -> bool:
 
 # ActionList ====================
 
-ActionList = NewType(
-    "ActionList", tuple[list[AskAction], list[GuessAction]]
-)
+ActionList = NewType("ActionList", tuple[list[AskAction], list[GuessAction]])
 
 
 def ActionList_init(
-    ask_actions: list[AskAction],
-    guess_actions: list[GuessAction],
+    ask_actions: list[AskAction], guess_actions: list[GuessAction]
 ) -> ActionList:
     """行動の一覧を生成して返す"""
     data = (ask_actions, guess_actions)
     return ActionList(data)
 
 
-def ActionList_get_ask_actions(
-    action_list: ActionList,
-) -> list[AskAction]:
+def ActionList_get_ask_actions(action_list: ActionList) -> list[AskAction]:
     """質問の一覧を返す"""
     return action_list[0]
 
 
-def ActionList_get_guess_actions(
-    action_list: ActionList,
-) -> list[GuessAction]:
+def ActionList_get_guess_actions(action_list: ActionList) -> list[GuessAction]:
     """推測の一覧を返す"""
     return action_list[1]
 
 
-def ActionList_get_all_actions(
-    action_list: ActionList,
-) -> list[Action]:
+def ActionList_get_all_actions(action_list: ActionList) -> list[Action]:
     """行動の一覧を返す"""
     return action_list[0] + action_list[1]  # type: ignore
 
 
-def ActionList_contains_action(
-    action_list: ActionList, action: Action
-) -> bool:
+def ActionList_contains_action(action_list: ActionList, action: Action) -> bool:
     """指定された行動が一覧に含まれるか返す"""
     return action in ActionList_get_all_actions(action_list)
 
@@ -116,9 +103,7 @@ def ActionList_get_available_actions(
     手番プレイヤーの手札と直前の行動から
     選択可能な行動の一覧を生成して返す
     """
-    ask_actions = [
-        AskAction_init(card) for card in Card_get_all_cards()
-    ]
+    ask_actions = [AskAction_init(card) for card in Card_get_all_cards()]
     guess_actions = []
 
     if prev_action is not None:
@@ -151,11 +136,7 @@ if __name__ == "__main__":
     print(guess)
     print(GuessAction_is_hit(guess, Deal_get_rest_card(deal)))
 
-    print(
-        ActionList_get_available_actions(
-            Deal_get_player0_hand(deal), None
-        )
-    )
+    print(ActionList_get_available_actions(Deal_get_player0_hand(deal), None))
     print(
         ActionList_get_available_actions(
             Deal_get_player1_hand(deal),

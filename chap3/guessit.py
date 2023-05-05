@@ -16,9 +16,7 @@ def main() -> None:
     deal = Dealer_deal(dealer)
 
     terminal = Terminal_init()
-    human = HumanPlayer_init(
-        "Player0", Deal_get_player0_hand(deal), terminal
-    )
+    human = HumanPlayer_init("Player0", Deal_get_player0_hand(deal), terminal)
     ai = RandomAI_init("Player1")
 
     player0 = Player_init_with_human_player(human)

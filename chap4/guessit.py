@@ -9,9 +9,7 @@ def main() -> None:
     deal = Dealer().deal()
 
     terminal = Terminal()
-    player0 = HumanPlayer(
-        "Player0", deal.player0_hand, terminal
-    )
+    player0 = HumanPlayer("Player0", deal.player0_hand, terminal)
     player1 = RandomAI("Player1")
 
     game = Game(deal, player0, player1, terminal)

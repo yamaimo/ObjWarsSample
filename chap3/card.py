@@ -28,12 +28,7 @@ def Card_get_number(card: Card) -> int:
 
 def Card_get_all_cards() -> list[Card]:
     """すべてのカードを生成して返す"""
-    return [
-        Card_init(number)
-        for number in range(
-            CARD_MIN_NUMBER, CARD_MAX_NUMBER + 1
-        )
-    ]
+    return [Card_init(number) for number in range(CARD_MIN_NUMBER, CARD_MAX_NUMBER + 1)]
 
 
 # Hand ====================
@@ -47,12 +42,8 @@ def Hand_init(cards: list[Card]) -> Hand:
     カードのリストが不正な場合はAssertionError
     """
     # 手札のチェック
-    assert (
-        len(cards) == 4
-    ), f"The number of cards is invalid. (cards: {cards})"
-    assert (
-        len(set(cards)) == 4
-    ), f"There are the same cards. (cards: {cards})"
+    assert len(cards) == 4, f"The number of cards is invalid. (cards: {cards})"
+    assert len(set(cards)) == 4, f"There are the same cards. (cards: {cards})"
 
     sorted_cards = sorted(cards, key=Card_get_number)
     data = (sorted_cards,)
@@ -74,18 +65,14 @@ def Hand_has_card(hand: Hand, card: Card) -> bool:
 Deal = NewType("Deal", tuple[Hand, Hand, Card])
 
 
-def Deal_init(
-    player0_hand: Hand, player1_hand: Hand, rest_card: Card
-) -> Deal:
+def Deal_init(player0_hand: Hand, player1_hand: Hand, rest_card: Card) -> Deal:
     """
     ディールを生成して返す
     手札や残ったカードが不正な場合はAssertionError
     """
     # 使われてるカードのチェック
     used_card_set = set(
-        Hand_get_cards(player0_hand)
-        + Hand_get_cards(player1_hand)
-        + [rest_card]
+        Hand_get_cards(player0_hand) + Hand_get_cards(player1_hand) + [rest_card]
     )
     all_card_set = set(Card_get_all_cards())
     assert (
@@ -161,9 +148,7 @@ if __name__ == "__main__":
 
     # Hand ----------
 
-    hand = Hand_init(
-        [Card_init(number) for number in range(1, 5)]
-    )
+    hand = Hand_init([Card_init(number) for number in range(1, 5)])
     print(Hand_get_cards(hand))
     print(Hand_has_card(hand, Card_init(1)))
     print(Hand_has_card(hand, Card_init(5)))
@@ -173,20 +158,14 @@ if __name__ == "__main__":
     except AssertionError as e:
         print(e)
     try:
-        Hand_init(
-            [Card_init(number) for number in [1, 2, 3, 1]]
-        )
+        Hand_init([Card_init(number) for number in [1, 2, 3, 1]])
     except AssertionError as e:
         print(e)
 
     # Deal ----------
 
-    player0_hand = Hand_init(
-        [Card_init(i) for i in [1, 5, 7, 8]]
-    )
-    player1_hand = Hand_init(
-        [Card_init(i) for i in [2, 4, 6, 9]]
-    )
+    player0_hand = Hand_init([Card_init(i) for i in [1, 5, 7, 8]])
+    player1_hand = Hand_init([Card_init(i) for i in [2, 4, 6, 9]])
     rest_card = Card_init(3)
     deal = Deal_init(player0_hand, player1_hand, rest_card)
     print(Hand_get_cards(Deal_get_player0_hand(deal)))
@@ -194,12 +173,8 @@ if __name__ == "__main__":
     print(Deal_get_rest_card(deal))
 
     try:
-        player0_hand = Hand_init(
-            [Card_init(i) for i in range(1, 5)]
-        )
-        player1_hand = Hand_init(
-            [Card_init(i) for i in range(4, 8)]
-        )
+        player0_hand = Hand_init([Card_init(i) for i in range(1, 5)])
+        player1_hand = Hand_init([Card_init(i) for i in range(4, 8)])
         rest_card = Card_init(9)
         Deal_init(player0_hand, player1_hand, rest_card)
     except AssertionError as e:

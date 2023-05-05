@@ -99,12 +99,8 @@ with TestSubject("Hand") as subject:
 
 
 with TestSubject("Deal") as subject:
-    player0_hand = Hand(
-        [Card(number) for number in range(1, 5)]
-    )
-    player1_hand = Hand(
-        [Card(number) for number in range(5, 9)]
-    )
+    player0_hand = Hand([Card(number) for number in range(1, 5)])
+    player1_hand = Hand([Card(number) for number in range(5, 9)])
     rest_card = Card(9)
     deal = Deal(player0_hand, player1_hand, rest_card)
 
@@ -128,12 +124,8 @@ with TestSubject("Deal") as subject:
 
     @subject.testcase("overlapped hands are not allowed.")
     def test_overlapped_hands() -> bool:
-        player0_hand = Hand(
-            [Card(number) for number in range(1, 5)]
-        )
-        player1_hand = Hand(
-            [Card(number) for number in range(4, 8)]
-        )
+        player0_hand = Hand([Card(number) for number in range(1, 5)])
+        player1_hand = Hand([Card(number) for number in range(4, 8)])
         rest_card = Card(9)
         try:
             Deal(player0_hand, player1_hand, rest_card)
@@ -143,12 +135,8 @@ with TestSubject("Deal") as subject:
 
     @subject.testcase("rest card must not be in hands.")
     def test_rest_card_in_hands() -> bool:
-        player0_hand = Hand(
-            [Card(number) for number in range(1, 5)]
-        )
-        player1_hand = Hand(
-            [Card(number) for number in range(5, 9)]
-        )
+        player0_hand = Hand([Card(number) for number in range(1, 5)])
+        player1_hand = Hand([Card(number) for number in range(5, 9)])
         try:
             rest_card = Card(1)
             Deal(player0_hand, player1_hand, rest_card)
